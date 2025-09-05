@@ -4,23 +4,27 @@ import Link from "next/link";
 export async function Navbar({ session }: { session: Session }) {
   return (
     <div className="navbar bg-base-100">
-      <Link href="/api/auth/signout" className="btn">
-        {session.user?.name}
-      </Link>
       <Link href="/" className="btn">
         Домой
       </Link>
-      <Link href="/user" className="btn">
-        Пользователи
+      <Link href="/Calendar" className="btn">
+        Календарь
       </Link>
-      <Link href="/group" className="btn">
-        Группы
+      <Link href="/Championship" className="btn">
+        Чемпионат
       </Link>
-      <Link href="/taskType" className="btn">
-        Задачи
+      <Link href="/Pilots" className="btn">
+        Пилоты
       </Link>
-      <Link href="/student" className="btn">
-        Студент
+      <Link href="/Judicial" className="btn">
+        Судейская
+      </Link>
+      <Link href="/Profile/[id]" className="btn">
+        Профиль
+      </Link>
+      <Link href="/api/auth/signout" className="btn">
+        {session.user?.name}
+        Выход
       </Link>
     </div>
   );
