@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export async function Navbar({ session }: { session: Session }) {
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-gray-800">
       <Link href="/" className="btn">
         Домой
       </Link>
@@ -19,9 +19,9 @@ export async function Navbar({ session }: { session: Session }) {
       <Link href="/Judicial" className="btn">
         Судейская
       </Link>
-      <Link href="/Profile/[id]" className="btn">
+      {/* <Link href="/Profile/[id]" className="btn">
         Профиль
-      </Link>
+      </Link> */}
       <Link href="/api/auth/signout" className="btn">
         {session.user?.name}
         Выход

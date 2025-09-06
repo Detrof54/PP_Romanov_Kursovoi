@@ -107,7 +107,7 @@ model Season {
 
 model Weekend {
   id                    String          @id @default(cuid())
-  stage                 Int
+  stage                 Int             
   nameTrassa            String
   city                  String
 
@@ -117,13 +117,19 @@ model Weekend {
   seasonId              String
   season                Season          @relation(fields: [seasonId], references: [id])
 
+  events                 Event[]
 
+  @@unique([seasonId, stage])
 }
 
 model Event {
   id                    String          @id @default(cuid())
   type                  RaceType
   data                  DateTime
+
+  weekendId             String      
+  weekend               Weekend     @relation(fields: [weekendId], references: [id])
+
   results               Result[]
   penalties             Penalty[]     //у события могут быть штрафы
 }
@@ -137,16 +143,17 @@ enum RaceType {
 
 model Result {
   id                    String      @id @default(cuid())
-  pilotId               String      @unique
+  pilotId               String      
   driver                Pilot       @relation(fields: [pilotId], references: [id])
 
-  eventId               String      @unique
+  eventId               String      
   event                 Event       @relation(fields: [eventId], references: [id])
 
   position              Int
   points                Int
   bestLap               Float?
-
+  
+  @@unique([pilotId, eventId]) // вместо eventId @unique
 }
 
 
