@@ -2,7 +2,28 @@ import { PrismaClient, Role, RaceType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+async function clearDb() {
+  console.log("Удаляем старые данные...");
+
+  // Сначала самые зависимые таблицы
+  await prisma.penalty.deleteMany({});
+  await prisma.result.deleteMany({});
+  await prisma.event.deleteMany({});
+  await prisma.weekend.deleteMany({});
+
+  // Потом родительские таблицы
+  await prisma.season.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.pilot.deleteMany({});
+  await prisma.judge.deleteMany({});
+
+  console.log("База очищена");
+}
+
 async function main() {
+  // Удаляем данные
+  await clearDb()
+
   console.log("🌱 Сидирование фиксированных данных...");
 
   // ===== USERS =====
@@ -104,18 +125,34 @@ async function main() {
     {
       id: "weekend-1",
       stage: 1,
-      nameTrassa: "Silverstone",
-      city: "London",
-      dateStart: new Date("2025-03-10"),
-      dateEnd: new Date("2025-11-12"),
+      nameTrassa: "MegaRacer",
+      city: "Самара",
+      dateStart: new Date("2025-08-29T14:30:00Z"),
+      dateEnd: new Date("2025-08-31T14:30:00Z"),
     },
     {
       id: "weekend-2",
       stage: 2,
-      nameTrassa: "Monaco GP",
-      city: "Monaco",
-      dateStart: new Date("2025-03-10"),
-      dateEnd: new Date("2025-11-12"),
+      nameTrassa: "Новосибирск GP",
+      city: "Новосибирск",
+      dateStart: new Date("2025-09-05T14:30:00Z"),
+      dateEnd: new Date("2025-09-07T14:30:00Z"),
+    },
+        {
+      id: "weekend-3",
+      stage: 3,
+      nameTrassa: "Рязань Recing",
+      city: "Рязань",
+      dateStart: new Date("2025-09-12T14:30:00Z"),
+      dateEnd: new Date("2025-09-14T14:30:00Z"),
+    },
+    {
+      id: "weekend-4",
+      stage: 4,
+      nameTrassa: "АвтоКорс",
+      city: "Красноярск",
+      dateStart: new Date("2025-11-19T14:30:00Z"),
+      dateEnd: new Date("2025-11-21T14:30:00Z"),
     },
   ];
 
@@ -138,18 +175,81 @@ async function main() {
   // ===== EVENTS =====
   const events = [
     {
-      id: "event-1",
-      type: RaceType.RACE,
-      date: new Date("2025-04-11"),
+      id: "event-1-1",
+      type: RaceType.TEST_RACE,
+      date: new Date("2025-08-29T14:30:00Z"),
       weekendId: "weekend-1",
     },
     {
-      id: "event-2",
+      id: "event-1-2",
       type: RaceType.QUALIFICATION,
-      date: new Date("2025-05-02"),
+      date: new Date("2025-08-30T14:30:00Z"),
       weekendId: "weekend-1",
     },
+    {
+      id: "event-1-3",
+      type: RaceType.RACE,
+      date: new Date("2025-08-31T14:30:00Z"),
+      weekendId: "weekend-1",
+    },
+
+    {
+      id: "event-2-1",
+      type: RaceType.TEST_RACE,
+      date: new Date("2025-09-05T14:30:00Z"),
+      weekendId: "weekend-2",
+    },
+    {
+      id: "event-2-2",
+      type: RaceType.QUALIFICATION,
+      date: new Date("2025-09-06T14:30:00Z"),
+      weekendId: "weekend-2",
+    },
+    {
+      id: "event-2-3",
+      type: RaceType.RACE,
+      date: new Date("2025-09-07T14:30:00Z"),
+      weekendId: "weekend-2",
+    },
+
+        {
+      id: "event-3-1",
+      type: RaceType.TEST_RACE,
+      date: new Date("2025-09-12T14:30:00Z"),
+      weekendId: "weekend-3",
+    },
+    {
+      id: "event-3-2",
+      type: RaceType.QUALIFICATION,
+      date: new Date("2025-09-13T14:30:00Z"),
+      weekendId: "weekend-3",
+    },
+    {
+      id: "event-3-3",
+      type: RaceType.RACE,
+      date: new Date("2025-09-14T14:30:00Z"),
+      weekendId: "weekend-3",
+    },
+    {
+      id: "event-4-1",
+      type: RaceType.TEST_RACE,
+      date: new Date("2025-11-19T14:30:00Z"),
+      weekendId: "weekend-4",
+    },
+    {
+      id: "event-4-2",
+      type: RaceType.QUALIFICATION,
+      date: new Date("2025-11-20T14:30:00Z"),
+      weekendId: "weekend-4",
+    },
+    {
+      id: "event-4-3",
+      type: RaceType.RACE,
+      date: new Date("2025-11-21T14:30:00Z"),
+      weekendId: "weekend-4",
+    },
   ];
+
 
   for (const event of events) {
     await prisma.event.upsert({
@@ -169,7 +269,7 @@ async function main() {
   {
     id: "result-1",
     pilotId: "pilot1",
-    eventId: "event-1",
+    eventId: "event-1-2",
     position: 1,
     points: 25,
     bestLap: 1.32,
@@ -177,7 +277,7 @@ async function main() {
   {
     id: "result-2",
     pilotId: "pilot2",
-    eventId: "event-1",
+    eventId: "event-1-1",
     position: 2,
     points: 18,
     bestLap: 1.35,
@@ -208,7 +308,7 @@ async function main() {
       disqualified: false,
       pilotId: "pilot1",
       judgeId: "judge1",
-      eventId: "event-1",
+      eventId: "event-1-1",
     },
     {
       id: "penalty-2",
@@ -218,7 +318,7 @@ async function main() {
       disqualified: false,
       pilotId: "pilot2",
       judgeId: "judge1",
-      eventId: "event-2",
+      eventId: "event-2-2",
     },
   ];
 

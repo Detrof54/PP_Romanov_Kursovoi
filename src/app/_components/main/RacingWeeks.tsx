@@ -3,6 +3,10 @@
 import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
 
+// api для клиента!!!
+import { api } from "~/trpc/react";
+
+
 type Weekend = {
   id: string;
   city: string;
@@ -15,12 +19,18 @@ type Weekend = {
 };
 
 type WeekendOverviewProps = {
-  previous?: Weekend;
-  current: Weekend;
-  next?: Weekend;
+  weekendPCN: {
+    previous?: Weekend;
+    current?: Weekend;
+    next?: Weekend;
+  };
 };
 
-export default function WeekendOverview({ previous, current, next }: WeekendOverviewProps) {
+export default function WeekendOverview({ weekendPCN }: WeekendOverviewProps) {
+  const { previous, current, next } = weekendPCN;
+
+  if(!weekendPCN){return <p className="text-white text-center">Не удалось загрузить данные</p>}
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "long" });
@@ -51,7 +61,7 @@ export default function WeekendOverview({ previous, current, next }: WeekendOver
             </p>
             <div className="flex flex-col gap-1 mt-2 items-start text-left">
               {weekend.events.map((e) => (
-                <div key={e.type} className="flex items-center gap-2 text-gray-400">
+                <div key={`${e.type}-${e.data}`} className="flex items-center gap-2 text-gray-400">
                   <CalendarDays className="w-4 h-4 text-gray-400" />
                   <span>{`${typeEventText(e.type)}: ${formatDate(e.data)} ${formatTime(e.data)}`}</span>
                 </div>

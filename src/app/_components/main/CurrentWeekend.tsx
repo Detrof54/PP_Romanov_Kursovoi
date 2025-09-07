@@ -3,22 +3,44 @@ import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays, Clock } from "lucide-react";
 import { api } from "../../../trpc/react";
 
-type Event = {
-  id: string;
-  type: "TEST_RACE" | "QUALIFICATION" | "RACE";
-  data: string; 
-};
+// type Event = {
+//   id: string;
+//   type: "TEST_RACE" | "QUALIFICATION" | "RACE";
+//   data: string; 
+// };
 
-type WeekendProps = {
+// type WeekendProps = {
+//   city: string;
+//   nameTrassa: string;
+//   seasonYear: number;
+//   events: Event[];
+// };
+
+type Weekend = {
+  id: string;
   city: string;
   nameTrassa: string;
   seasonYear: number;
-  events: Event[];
+  events: {
+    type: "TEST_RACE" | "QUALIFICATION" | "RACE";
+    data: string;
+  }[];
 };
 
-export default function CurrentWeekendDark() {
+type WeekendOverviewProps = {
+  weekendPCN: {
+    previous?: Weekend;
+    current?: Weekend;
+    next?: Weekend;
+  };
+};
 
-const { data: weekend, isLoading, isError } = api.mainPageRouter.getCurrentWeekend.useQuery();
+export default function CurrentWeekendDark({ weekendPCN }: WeekendOverviewProps) {
+
+  const {current} = weekendPCN
+
+//tRPC запрос
+// const { data: weekend, isLoading, isError } = api.mainPageRouter.getCurrentWeekend.useQuery();
 
 const formatDateTime = (date: string | Date) => {
   const d = date instanceof Date ? date : new Date(date);
@@ -30,23 +52,22 @@ const formatDateTime = (date: string | Date) => {
   return `${day} ${month}, ${hours}:${minutes}`;
 };
 
-  console.log(weekend)
 
-  if (isLoading) return <p className="text-white text-center">Загрузка...</p>;
-  if (isError || !weekend) return <p className="text-white text-center">Не удалось загрузить данные</p>;
-
+  // if (isLoading) return <p className="text-white text-center">Загрузка...</p>;
+  if (!current) return <p className="text-white text-center">Не удалось загрузить данные</p>;
 
 
-  const practice = weekend?.events.find(e => e.type === "TEST_RACE");
-  const qualification = weekend?.events.find(e => e.type === "QUALIFICATION");
-  const race = weekend?.events.find(e => e.type === "RACE");
+
+  const practice = current?.events.find(e => e.type === "TEST_RACE");
+  const qualification = current?.events.find(e => e.type === "QUALIFICATION");
+  const race = current?.events.find(e => e.type === "RACE");
 
   
 return (
     <div className="flex flex-col items-center gap-8 p-8 bg-transparent text-white">
       {/* Заголовок */}
       <h2 className="text-3xl font-bold text-center">
-        {weekend.city} — {weekend.nameTrassa} ({weekend.season.year})
+        {current.city} — {current.nameTrassa} ({current.seasonYear})
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">

@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "~/app/ui/card";
 
-type NewsItem = {
+export type NewsItem = {
   id: string;
   title: string;
   summary: string;
@@ -10,11 +10,16 @@ type NewsItem = {
   image?: string;
 };
 
-type NewsProps = {
+export type NewsProps = {
   news: NewsItem[];
 };
 
 export default function News({ news }: NewsProps) {
+
+
+
+
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString("ru-RU", {
