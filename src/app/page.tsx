@@ -78,8 +78,7 @@ export default async function Home() {
 
 
   return (
-      <div className="bg-gray-900">
-        {/* Пока что так */}
+      <div className="!bg-gray-900 p-4 text-white">
         <CurrentWeekend weekendPCN={weekendPCNData} />
         <WeekendOverview weekendPCN={weekendPCNData} />
         <News news={newsData} />
