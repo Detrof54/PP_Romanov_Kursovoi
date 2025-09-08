@@ -10,7 +10,7 @@ export async function Navbar({ session }: { session: Session }) {
       <Link href="/calendar" className="btn bg-gray-900 text-white">
         Календарь
       </Link>
-      <Link href="/Championship" className="btn bg-gray-900 text-white">
+      <Link href="/championship" className="btn bg-gray-900 text-white">
         Чемпионат
       </Link>
       <Link href="/Pilots" className="btn bg-gray-900 text-white">

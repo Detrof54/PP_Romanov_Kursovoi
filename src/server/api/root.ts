@@ -2,6 +2,7 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { mainPageRouter } from "./routers/mainpage";
 import { calendarRouter } from "./routers/calendar";
+import { championshipRouter } from "./routers/championship";
 
 
 /**
@@ -12,6 +13,7 @@ import { calendarRouter } from "./routers/calendar";
 export const appRouter = createTRPCRouter({
     mainPageRouter: mainPageRouter,
     calendarRouter: calendarRouter,
+    championshipRouter: championshipRouter,
 });
 
 // export type definition of API

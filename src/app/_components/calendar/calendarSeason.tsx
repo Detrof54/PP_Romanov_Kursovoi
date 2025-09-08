@@ -46,15 +46,14 @@ export default function CalendarSeason({ years }: CalendarSeasonProps) {
     ? Number(searchParams.get("year"))
     : undefined;
 
-  const { data: season, isLoading, error } =
-    api.calendarRouter.getListWeekends.useQuery({ year: selectedYear });
+  const { data: season, isLoading, error } = api.calendarRouter.getListWeekends.useQuery({ year: selectedYear });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!season) return <div>No data</div>;
 
   return (
-    <div className="!bg-gray-900 p-4 text-white">
+    <div className="bg-gray-900 p-4 text-white">
       <form method="get">
         <label htmlFor="yearSelect" className="mr-2">
           Выберите год:

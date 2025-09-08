@@ -64,6 +64,102 @@ async function main() {
         start_number: 2,
       },
     },
+    {
+    id: "user-pilot3",
+    firstname: "Алексей",
+    surname: "Скоростной",
+    email: "pilot3@example.com",
+    pilot: {
+      id: "pilot3",
+      birthDate: new Date("1994-03-15"),
+      license: "LIC11111",
+      start_number: 3,
+    },
+  },
+  {
+    id: "user-pilot4",
+    firstname: "Дмитрий",
+    surname: "Обгоняев",
+    email: "pilot4@example.com",
+    pilot: {
+      id: "pilot4",
+      birthDate: new Date("1993-04-20"),
+      license: "LIC22222",
+      start_number: 4,
+    },
+  },
+  {
+    id: "user-pilot5",
+    firstname: "Сергей",
+    surname: "Быстров",
+    email: "pilot5@example.com",
+    pilot: {
+      id: "pilot5",
+      birthDate: new Date("1992-05-05"),
+      license: "LIC33333",
+      start_number: 5,
+    },
+  },
+  {
+    id: "user-pilot6",
+    firstname: "Антон",
+    surname: "Тормозов",
+    email: "pilot6@example.com",
+    pilot: {
+      id: "pilot6",
+      birthDate: new Date("1997-06-10"),
+      license: "LIC44444",
+      start_number: 6,
+    },
+  },
+  {
+    id: "user-pilot7",
+    firstname: "Максим",
+    surname: "Шумахеров",
+    email: "pilot7@example.com",
+    pilot: {
+      id: "pilot7",
+      birthDate: new Date("1991-07-07"),
+      license: "LIC55555",
+      start_number: 7,
+    },
+  },
+  {
+    id: "user-pilot8",
+    firstname: "Андрей",
+    surname: "Финишов",
+    email: "pilot8@example.com",
+    pilot: {
+      id: "pilot8",
+      birthDate: new Date("1998-08-08"),
+      license: "LIC66666",
+      start_number: 8,
+    },
+  },
+  {
+    id: "user-pilot9",
+    firstname: "Николай",
+    surname: "Стартов",
+    email: "pilot9@example.com",
+    pilot: {
+      id: "pilot9",
+      birthDate: new Date("1990-09-09"),
+      license: "LIC77777",
+      start_number: 9,
+    },
+  },
+  {
+    id: "user-pilot10",
+    firstname: "Егор",
+    surname: "Трассов",
+    email: "pilot10@example.com",
+    pilot: {
+      id: "pilot10",
+      birthDate: new Date("1989-10-10"),
+      license: "LIC88888",
+      start_number: 10,
+    },
+  },
   ];
 
   const judgeUsers = [
@@ -172,6 +268,25 @@ async function main() {
     });
   }
 
+  await prisma.season.update({
+  where: { id: season2024.id },
+  data: {
+    pilots: {
+      connect: [
+        { id: "pilot1" },
+        { id: "pilot2" },
+        { id: "pilot3" },
+        { id: "pilot4" },
+        { id: "pilot5" },
+        { id: "pilot6" },
+        { id: "pilot7" },
+        { id: "pilot8" },
+        { id: "pilot9" },
+        { id: "pilot10" },
+      ],
+    },
+  },
+});
 
     const season2025 = await prisma.season.upsert({
     where: { id: "season-2025" },
@@ -230,6 +345,26 @@ async function main() {
     });
   }
 
+  await prisma.season.update({
+  where: { id: season2025.id },
+  data: {
+    pilots: {
+      connect: [
+        { id: "pilot1" },
+        { id: "pilot2" },
+        { id: "pilot3" },
+        { id: "pilot4" },
+        { id: "pilot5" },
+        { id: "pilot6" },
+        { id: "pilot7" },
+        { id: "pilot8" },
+        { id: "pilot9" },
+        { id: "pilot10" },
+      ],
+    },
+  },
+});
+
   const season2026 = await prisma.season.upsert({
     where: { id: "season-2026" },
     update: {},
@@ -287,6 +422,25 @@ async function main() {
     });
   }
 
+  await prisma.season.update({
+  where: { id: season2026.id },
+  data: {
+    pilots: {
+      connect: [
+        { id: "pilot1" },
+        { id: "pilot2" },
+        { id: "pilot3" },
+        { id: "pilot4" },
+        { id: "pilot5" },
+        { id: "pilot6" },
+        { id: "pilot7" },
+        { id: "pilot8" },
+        { id: "pilot9" },
+        { id: "pilot10" },
+      ],
+    },
+  },
+});
 
 
   // ===== EVENTS =====
@@ -562,39 +716,47 @@ const events2024 = [
 
 
   // ===== RESULTS =====
- const results = [
-  {
-    id: "result-1",
-    pilotId: "pilot1",
-    eventId: "event-1-2-2025",
-    position: 1,
-    points: 25,
-    bestLap: 1.32,
-  },
-  {
-    id: "result-2",
-    pilotId: "pilot2",
-    eventId: "event-1-1-2025",
-    position: 2,
-    points: 18,
-    bestLap: 1.35,
-  },
+const pilotsIds = [
+  "pilot1","pilot2","pilot3","pilot4","pilot5",
+  "pilot6","pilot7","pilot8","pilot9","pilot10"
 ];
 
-    for (const r of results) {
-        await prisma.result.upsert({
-        where: { pilotId_eventId: { pilotId: r.pilotId, eventId: r.eventId } },
-        update: {},
-        create: {
-            pilotId: r.pilotId,
-            eventId: r.eventId,
-            position: r.position,
-            points: r.points,
-            bestLap: r.bestLap,
-        },
-        });
-    }
+const allEvents = [...events2024, ...events2025, ...events2026];
+const raceEvents = allEvents.filter(e => e.type === RaceType.RACE);
 
+for (let eIdx = 0; eIdx < raceEvents.length; eIdx++) {
+  const event = raceEvents[eIdx];
+  if (!event) continue;
+
+  for (let pIdx = 0; pIdx < pilotsIds.length; pIdx++) {
+    const pilotId = pilotsIds[pIdx]!;
+
+    const position = (pIdx + eIdx) % pilotsIds.length + 1;
+    const points = Math.max(0, 25 - (position - 1) * 2);
+    const bestLap = +(1 + pIdx * 0.01 + eIdx * 0.01).toFixed(2);
+
+    await prisma.result.upsert({
+      where: {
+        pilotId_eventId: {
+          pilotId,
+          eventId: event.id,
+        },
+      },
+      update: {
+        position,
+        points,
+        bestLap,
+      },
+      create: {
+        pilotId,
+        eventId: event.id,
+        position,
+        points,
+        bestLap,
+      },
+    });
+  }
+}
   // ===== PENALTIES =====
   const penalties = [
     {
