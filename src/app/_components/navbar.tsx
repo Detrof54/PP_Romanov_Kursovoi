@@ -13,10 +13,10 @@ export async function Navbar({ session }: { session: Session }) {
       <Link href="/championship" className="btn bg-gray-900 text-white">
         Чемпионат
       </Link>
-      <Link href="/Pilots" className="btn bg-gray-900 text-white">
+      <Link href="/pilots" className="btn bg-gray-900 text-white">
         Пилоты
       </Link>
-      <Link href="/Judicial" className="btn bg-gray-900 text-white">
+      <Link href="/judicial" className="btn bg-gray-900 text-white">
         Судейская
       </Link>
       {/* <Link href="/Profile/[id]" className="btn">
