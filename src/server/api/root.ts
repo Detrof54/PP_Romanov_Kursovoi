@@ -5,6 +5,7 @@ import { calendarRouter } from "./routers/calendar";
 import { championshipRouter } from "./routers/championship";
 import { pilotsRouter } from "./routers/pilots";
 import { judgesRouter } from "./routers/judge";
+import { userProfileRouter } from "./routers/profile";
 
 
 /**
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
     championshipRouter: championshipRouter,
     pilotsRouter:pilotsRouter,
     judgesRouter:judgesRouter,
+    userProfileRouter:userProfileRouter,
 });
 
 // export type definition of API
