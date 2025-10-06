@@ -16,12 +16,12 @@ export async function Navbar({ session }: { session: Session }) {
       <Link href="/pilots" className="btn bg-gray-900 text-white">
         Пилоты
       </Link>
-      <Link href="/judicial" className="btn bg-gray-900 text-white">
+      {/* <Link href="/judicial" className="btn bg-gray-900 text-white">
         Судейская
-      </Link>
-      {/* <Link href="/Profile/[id]" className="btn">
-        Профиль
       </Link> */}
+      <Link href="/profile" className="btn">
+        Профиль
+      </Link>
       <Link href="/api/auth/signout" className="btn bg-gray-900 text-white">
         {session.user?.name}
         Выход

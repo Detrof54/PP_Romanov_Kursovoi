@@ -167,9 +167,59 @@ async function main() {
       id: "user-judge1",
       firstname: "Сергей",
       surname: "Судейкин",
-      email: "judge1@example.com",
+      email: "judge12323@example.com",
       judge: { id: "judge1" },
     },
+        {
+      id: "user-judge2",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge1tt@example.com",
+      judge: { id: "judge2" },
+    },
+        {
+      id: "user-judge3",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge1rr@example.com",
+      judge: { id: "judge3" },
+    },
+        {
+      id: "user-judge4",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge1ff@example.com",
+      judge: { id: "judge4" },
+    },
+        {
+      id: "user-judge5",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge1sfdd@example.com",
+      judge: { id: "judge5" },
+    },
+        {
+      id: "user-judge6",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge1sf@example.com",
+      judge: { id: "judge6" },
+    },
+        {
+      id: "user-judge7",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judgedsg@example.com",
+      judge: { id: "judge7" },
+    },
+        {
+      id: "user-judge8",
+      firstname: "Сергей",
+      surname: "Судейкин",
+      email: "judge12@example.com",
+      judge: { id: "judge8" },
+    },
+
   ];
 
   // Upsert пилотов
