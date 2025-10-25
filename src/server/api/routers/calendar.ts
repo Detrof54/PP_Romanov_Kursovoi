@@ -24,7 +24,7 @@ export const calendarRouter = createTRPCRouter({
     }),
 
     //получение списка сезонов (годов)
-    getListYear: protectedProcedure
+  getListYear: protectedProcedure
     .query(async ({ ctx, input }) => {
         const seasons = await ctx.db.season.findMany({
             select: { year: true },
@@ -34,30 +34,30 @@ export const calendarRouter = createTRPCRouter({
         return seasons.map((s) => s.year);
     }),
 
-createWeekend: protectedProcedure
-  .input(
-    z.object({
-      seasonId: z.string(),
-      stage: z.number(),
-      nameTrassa: z.string(),
-      city: z.string(),
-      dateStart: z.string(),
-      dateEnd: z.string(),
-      events: z
-        .array(
-          z.object({
-            type: z.enum(["TEST_RACE", "QUALIFICATION", "RACE"]),
-            data: z.string(),
-          })
-        )
-        .max(3),
-    })
+  //Создание этапа
+  createWeekend: protectedProcedure
+    .input(
+      z.object({
+        seasonId: z.string(),
+        stage: z.number(),
+        nameTrassa: z.string(),
+        city: z.string(),
+        dateStart: z.string(),
+        dateEnd: z.string(),
+        events: z
+          .array(
+            z.object({
+              type: z.enum(["TEST_RACE", "QUALIFICATION", "RACE"]),
+              data: z.string(),
+            })
+          )
+      })
   )
   .mutation(async ({ ctx, input }) => {
     const user = ctx.session?.user;
     if (user?.role !== "ADMIN") throw new Error("Доступ запрещён");
-    if (input.dateStart !== "") throw new Error("Даты начала этапа нет");
-    if (input.dateEnd !== "") throw new Error("Даты конца этапа нет");
+    if (input.dateStart === "") throw new Error("Даты начала этапа нет");
+    if (input.dateEnd === "") throw new Error("Даты конца этапа нет");
     const weekend = await ctx.db.weekend.create({
       data: {
         seasonId: input.seasonId,
@@ -78,6 +78,8 @@ createWeekend: protectedProcedure
 
     return weekend;
   }),
+
+  //обновление этапа
   updateWeekend: protectedProcedure
   .input(z.object({
     id: z.string(),
@@ -98,18 +100,20 @@ createWeekend: protectedProcedure
       data: {
         nameTrassa: input.nameTrassa,
         city: input.city,
-        dateStart: input.dateStart,
-        dateEnd: input.dateEnd,
+        dateStart: new Date(input.dateStart),
+        dateEnd: new Date(input.dateEnd),
         events: {
           deleteMany: {}, // удаляем старые события
           create: input.events.map((e) => ({
             type: e.type,
-            data: e.data,
+            data: new Date(e.data),
           })),
         },
       },
     });
   }),
+
+  //удаление викенда
   deleteWeekend: protectedProcedure
   .input(z.object({ weekendId: z.string() }))
   .mutation(async ({ ctx, input }) => {
@@ -122,10 +126,11 @@ createWeekend: protectedProcedure
   //CRUD для сезонов
   getListYearRead: protectedProcedure
     .query(async ({ ctx }) => {
-    return ctx.db.season.findMany({
-      select: { year: true },
+    const seasons = await ctx.db.season.findMany({
+      select: { id: true, year: true }, // добавляем id
       orderBy: { year: "desc" },
-    }).then((res) => res.map(r => r.year));
+    });
+    return seasons; // возвращает {id: string, year: number}[]
   }),
 
 createSeason: protectedProcedure
@@ -146,6 +151,14 @@ updateSeason: protectedProcedure
 deleteSeason: protectedProcedure
   .input(z.object({ id: z.string() }))
   .mutation(async ({ ctx, input }) => {
+    await ctx.db.season.update({
+      where: { id: input.id },
+      data: {
+        pilots: {
+          set: [] // Разрываем все связи с пилотами
+        }
+      }
+    });
     return ctx.db.season.delete({ where: { id: input.id } });
   }),
 

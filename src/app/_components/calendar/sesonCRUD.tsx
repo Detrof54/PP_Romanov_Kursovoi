@@ -58,15 +58,15 @@ export default function SeasonManager() {
       <ul className="space-y-2 mb-6">
         {seasons?.map((s) => (
           <li
-            key={s}
+            key={s.id}
             className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-md"
           >
-            <span className="text-lg font-medium">{s}</span>
+            <span className="text-lg font-medium">{s.year}</span>
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  setEditTarget({ id: s.toString(), year: s });
-                  setYearInput(String(s));
+                  setEditTarget(s);
+                  setYearInput(String(s.year));
                 }}
                 className="text-blue-400 hover:text-blue-300"
               >
@@ -74,7 +74,7 @@ export default function SeasonManager() {
               </button>
               <button
                 onClick={() =>
-                  setDeleteTarget({ id: s.toString(), year: s })
+                  setDeleteTarget(s)
                 }
                 className="text-red-500 hover:text-red-400"
               >

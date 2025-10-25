@@ -24,14 +24,14 @@ export default function UpdateStage({ weekend, onClose, onUpdated }: EditWeekend
   const [form, setForm] = useState({
     nameTrassa: weekend.nameTrassa,
     city: weekend.city,
-    dateStart: weekend.dateStart.split("T")[0],
-    dateEnd: weekend.dateEnd.split("T")[0],
+    dateStart: weekend.dateStart,
+    dateEnd: weekend.dateEnd,
   });
 
   const [events, setEvents] = useState<Record<"TEST_RACE" | "QUALIFICATION" | "RACE", string>>({
-    TEST_RACE: weekend.events.find((e) => e.type === "TEST_RACE")?.data.split("T")[0] || "",
-    QUALIFICATION: weekend.events.find((e) => e.type === "QUALIFICATION")?.data.split("T")[0] || "",
-    RACE: weekend.events.find((e) => e.type === "RACE")?.data.split("T")[0] || "",
+    TEST_RACE: weekend.events.find((e) => e.type === "TEST_RACE")?.data || "",
+    QUALIFICATION: weekend.events.find((e) => e.type === "QUALIFICATION")?.data || "",
+    RACE: weekend.events.find((e) => e.type === "RACE")?.data || "",
   });
 
   const updateWeekend = api.calendarRouter.updateWeekend.useMutation({
@@ -102,7 +102,7 @@ export default function UpdateStage({ weekend, onClose, onUpdated }: EditWeekend
           <div>
             <label className="block text-sm mb-1">Дата начала</label>
             <input
-              type="date"
+              type="datetime-local"
               value={form.dateStart}
               onChange={(e) => setForm({ ...form, dateStart: e.target.value })}
               required
@@ -113,7 +113,7 @@ export default function UpdateStage({ weekend, onClose, onUpdated }: EditWeekend
           <div>
             <label className="block text-sm mb-1">Дата окончания</label>
             <input
-              type="date"
+              type="datetime-local"
               value={form.dateEnd}
               onChange={(e) => setForm({ ...form, dateEnd: e.target.value })}
               required
@@ -126,7 +126,7 @@ export default function UpdateStage({ weekend, onClose, onUpdated }: EditWeekend
             <div key={type}>
               <label className="block text-sm mb-1">{type}</label>
               <input
-                type="date"
+                type="datetime-local"
                 value={events[type]}
                 onChange={(e) =>
                   setEvents((prev) => ({ ...prev, [type]: e.target.value }))

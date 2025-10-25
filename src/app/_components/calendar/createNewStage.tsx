@@ -119,7 +119,7 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
                 *
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 value={events[type]}
                 onChange={(e) => setEvents((prev) => ({ ...prev, [type]: e.target.value }))}
                 className={`w-full p-2 rounded bg-gray-700 text-white border ${

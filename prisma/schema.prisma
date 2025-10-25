@@ -148,10 +148,10 @@ enum RaceType {
 model Result {
   id                    String      @id @default(cuid())
   pilotId               String      
-  driver                Pilot       @relation(fields: [pilotId], references: [id])
+  driver                Pilot       @relation(fields: [pilotId], references: [id],onDelete: Cascade)
 
   eventId               String      
-  event                 Event       @relation(fields: [eventId], references: [id])
+  event                 Event       @relation(fields: [eventId], references: [id],onDelete: Cascade)
 
   position              Int
   points                Int
@@ -179,20 +179,12 @@ model Penalty {
   judge       Judge    @relation(fields: [judgeId], references: [id])
 
   eventId     String
-  event       Event    @relation(fields: [eventId], references: [id])
+  event       Event    @relation(fields: [eventId], references: [id],onDelete: Cascade)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-
-// model News{
-//   id          String    @id @default(cuid())
-//   title       String
-//   summary     String
-//   date        DateTime
-//   image       Bytes?      
-// }
 
 
 
