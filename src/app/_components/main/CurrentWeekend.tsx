@@ -54,7 +54,15 @@ const formatDateTime = (date: string | Date) => {
 
 
   // if (isLoading) return <p className="text-white text-center">Загрузка...</p>;
-  if (!current) return <p className="text-white text-center">Не удалось загрузить данные</p>;
+  if (!current) return (
+    <div>
+      <h2 className="text-3xl font-bold text-center">
+        Не гоночная неделя
+      </h2>
+      <p className="text-white text-center">На этой неделе гонки не запланированы</p>
+    </div>
+    
+  );
 
 
 

@@ -78,9 +78,8 @@ export default function WeekendOverview({ weekendPCN }: WeekendOverviewProps) {
   return (
     <div className="flex flex-col items-center gap-8 p-8 bg-gray-900 text-white">
       <h2 className="text-3xl font-bold mb-4 text-center">Ближайшие гоночные недели</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+      <div className="flex justify-center gap-6 w-full max-w-5xl">
         {renderWeekendCard(previous, "Предыдущий")}
-        {renderWeekendCard(current, "Текущий")}
         {renderWeekendCard(next, "Следующий")}
       </div>
     </div>

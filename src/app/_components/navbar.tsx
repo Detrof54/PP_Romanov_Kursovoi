@@ -4,6 +4,7 @@ import Link from "next/link";
 export async function Navbar({ session }: { session: Session }) {
   return (
     <div className="navbar bg-gray-800">
+      {/* результаты гонок */}
       <Link href="/" className="btn bg-gray-900 text-white mr-2">
         Домой
       </Link>

@@ -1,4 +1,7 @@
 import { PrismaClient, Role, RaceType } from "@prisma/client";
+import path from "path";
+import fs from "fs";
+
 
 const prisma = new PrismaClient();
 
@@ -10,6 +13,7 @@ async function clearDb() {
   await prisma.result.deleteMany({});
   await prisma.event.deleteMany({});
   await prisma.weekend.deleteMany({});
+  // await prisma.news.deleteMany({});
 
   // Потом родительские таблицы
   await prisma.season.deleteMany({});
@@ -848,8 +852,66 @@ for (let eIdx = 0; eIdx < raceEvents.length; eIdx++) {
     });
   }
 
+  //Новости
+//   const newsData = [
+//   {
+//     id: "1",
+//     title: "Новый этап SMP Karting 2025",
+//     summary:
+//       "В этом сезоне пилоты поборются за победу на трассе Монца и Монако.",
+//     date: "2025-10-12T12:00:00Z",
+//     image: "/news1.webp",
+//   },
+//   {
+//     id: "2",
+//     title: "Результаты квалификации",
+//     summary:
+//       "Квалификация этапа в Спа прошла с рекордными показателями времени.",
+//     date: "2025-10-12T18:00:00Z",
+//     image: "/news2.webp",
+//   },
+//   {
+//     id: "3",
+//     title: "Интервью с победителем гонки",
+//     summary:
+//       "Пилот рассказал о подготовке и стратегии на предстоящий сезон.",
+//     date: "2025-10-12T10:00:00Z",
+//     image: "/news3.webp",
+//   },
+// ]; 
+//   for (const news of newsData) {
+//     // Путь к файлу в папке /public
+//     const filePath = path.join(process.cwd(), "public", news.image);
+//     let imageBuffer: Buffer | undefined;
+
+//     try {
+//       imageBuffer = fs.readFileSync(filePath);
+//     } catch (err) {
+//       console.warn(`⚠️  Не удалось прочитать файл ${filePath}. Пропускаю image.`);
+//     }
+
+//     await prisma.news.upsert({
+//       where: { id: news.id },
+//       update: {}, // можно указать поля для обновления, если нужно
+//       create: {
+//         id: news.id,
+//         title: news.title,
+//         summary: news.summary,
+//         date: new Date(news.date),
+//         image: imageBuffer,
+//       },
+//     });
+//   }
+
+
+
+
   console.log("✅ Сидирование завершено. Все данные фиксированные.");
 }
+
+
+
+
 
 main()
   .then(async () => {

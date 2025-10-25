@@ -119,7 +119,7 @@ model Weekend {
   dateEnd               DateTime
 
   seasonId              String
-  season                Season          @relation(fields: [seasonId], references: [id])
+  season                Season          @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
   events                 Event[]
 
@@ -132,7 +132,7 @@ model Event {
   data                  DateTime
 
   weekendId             String      
-  weekend               Weekend     @relation(fields: [weekendId], references: [id])
+  weekend               Weekend     @relation(fields: [weekendId], references: [id],onDelete: Cascade)
 
   results               Result[]
   penalties             Penalty[]     //у события могут быть штрафы
@@ -184,6 +184,15 @@ model Penalty {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+
+// model News{
+//   id          String    @id @default(cuid())
+//   title       String
+//   summary     String
+//   date        DateTime
+//   image       Bytes?      
+// }
 
 
 
