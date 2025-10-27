@@ -24,6 +24,22 @@ async function clearDb() {
   console.log("База очищена");
 }
 
+// Функция для расчета очков по системе F1
+function calculatePoints(position: number): number {
+  const pointsSystem = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+  return pointsSystem[position - 1] ?? 0;
+}
+
+// Функция для генерации случайного времени в миллисекундах
+function generateRaceTime(baseTime: number, variation: number = 10000): number {
+  return baseTime + Math.floor(Math.random() * variation);
+}
+
+// Функция для генерации времени лучшего круга
+function generateBestLap(baseLap: number, variation: number = 2000): number {
+  return baseLap + Math.random() * variation;
+}
+
 async function main() {
   // Удаляем данные
   await clearDb()
@@ -264,6 +280,7 @@ async function main() {
     });
   }
 
+  
   // ===== SEASON & WEEKENDS =====
   const season2024 = await prisma.season.upsert({
     where: { id: "season-2024" },
@@ -769,87 +786,166 @@ const events2024 = [
   }
 
 
-  // ===== RESULTS =====
-const pilotsIds = [
-  "pilot1","pilot2","pilot3","pilot4","pilot5",
-  "pilot6","pilot7","pilot8","pilot9","pilot10"
-];
+  // ===== Результаты =====
+const pilotsIds = pilotUsers.map(user => user.pilot.id);
 
-const allEvents = [...events2024, ...events2025, ...events2026];
-const raceEvents = allEvents.filter(e => e.type === RaceType.RACE);
+  // Для каждого события создаем результаты
+  for (const event of events2025) {
+    const results = [];
+    
+    // Генерируем времена для всех пилотов
+    for (const pilotId of pilotsIds) {
+      let totalTime: number;
+      let bestLap: number | null;
+      let points: number = 0;
 
-for (let eIdx = 0; eIdx < raceEvents.length; eIdx++) {
-  const event = raceEvents[eIdx];
-  if (!event) continue;
+      if (event.type === RaceType.RACE) {
+        // Для гонки - генерируем реальные времена
+        totalTime = generateRaceTime(1800000); // 30 минут базовое время
+        bestLap = generateBestLap(90000); // 1.5 минуты базовый круг
+      } else if (event.type === RaceType.QUALIFICATION) {
+        // Для квалификации - только лучшее время круга
+        totalTime = 0;
+        bestLap = generateBestLap(90000);
+      } else {
+        // Для тестовых заездов
+        totalTime = generateRaceTime(600000); // 10 минут
+        bestLap = generateBestLap(95000); // чуть медленнее
+      }
 
-  for (let pIdx = 0; pIdx < pilotsIds.length; pIdx++) {
-    const pilotId = pilotsIds[pIdx]!;
+      results.push({
+        pilotId,
+        totalTime,
+        bestLap,
+        points, // Пока 0, расчитаем после сортировки
+      });
+    }
 
-    const position = (pIdx + eIdx) % pilotsIds.length + 1;
-    const points = Math.max(0, 25 - (position - 1) * 2);
-    const bestLap = +(1 + pIdx * 0.01 + eIdx * 0.01).toFixed(2);
+    // Сортируем результаты в зависимости от типа события
+    if (event.type === RaceType.RACE) {
+      // Для гонки сортируем по totalTime
+      results.sort((a, b) => a.totalTime - b.totalTime);
+      
+      // Назначаем очки по системе F1
+      results.forEach((result, index) => {
+        result.points = calculatePoints(index + 1);
+      });
+    } else if (event.type === RaceType.QUALIFICATION) {
+      // Для квалификации сортируем по bestLap
+      results.sort((a, b) => (a.bestLap || Infinity) - (b.bestLap || Infinity));
+      // В квалификации очки не начисляются
+    } else {
+      // Для тестовых заездов сортируем по bestLap, очки не начисляются
+      results.sort((a, b) => (a.bestLap || Infinity) - (b.bestLap || Infinity));
+    }
 
+    // Сохраняем результаты в БД
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    if (!result) continue; // Пропускаем если undefined
+    
     await prisma.result.upsert({
       where: {
         pilotId_eventId: {
-          pilotId,
+          pilotId: result.pilotId,
           eventId: event.id,
         },
       },
       update: {
-        position,
-        points,
-        bestLap,
+        pozition: i + 1,
+        totalTime: result.totalTime,
+        bestLap: result.bestLap,
+        points: result.points,
       },
       create: {
-        pilotId,
+        pilotId: result.pilotId,
         eventId: event.id,
-        position,
-        points,
-        bestLap,
+        pozition: i + 1,
+        totalTime: result.totalTime,
+        bestLap: result.bestLap,
+        points: result.points,
       },
     });
   }
-}
-  // ===== PENALTIES =====
+  }
+
+
+  // ===== ШТРАФЫ =====
   const penalties = [
     {
       id: "penalty-1",
-      reason: "Превышение скорости в пит-лейн",
-      points: 5,
+      reason: "Выдавливание с трассы",
       time: null,
-      disqualified: false,
       pilotId: "pilot1",
       judgeId: "judge1",
-      eventId: "event-1-1-2025",
+      eventId: "event-1-3-2025", // Штраф в гонке
     },
     {
       id: "penalty-2",
-      reason: "Нарушение правил старта",
-      points: null,
-      time: 10,
-      disqualified: false,
+      reason: "Выезд за пределы трассы и получение преимущества",
+      time: 5000, // +5 секунд к времени
       pilotId: "pilot2",
       judgeId: "judge1",
-      eventId: "event-2-2-2025",
+      eventId: "event-1-3-2025",
+    },
+    {
+      id: "penalty-3",
+      reason: "Опасное вождение",
+      time: null,
+      pilotId: "pilot3",
+      judgeId: "judge1",
+      eventId: "event-2-3-2025",
+    },
+    {
+      id: "penalty-4",
+      reason: "Фальстарт",
+      time: 10000, // +10 секунд
+      pilotId: "pilot4",
+      judgeId: "judge1",
+      eventId: "event-1-2-2025", // Штраф в квалификации
     },
   ];
 
-  for (const p of penalties) {
+  for (const penalty of penalties) {
     await prisma.penalty.upsert({
-      where: { id: p.id },
+      where: { id: penalty.id },
       update: {},
       create: {
-        id: p.id,
-        reason: p.reason,
-        points: p.points,
-        time: p.time,
-        disqualified: p.disqualified,
-        pilot: { connect: { id: p.pilotId } },
-        judge: { connect: { id: p.judgeId } },
-        event: { connect: { id: p.eventId } },
+        id: penalty.id,
+        reason: penalty.reason,
+        time: penalty.time,
+        pilot: { connect: { id: penalty.pilotId } },
+        judge: { connect: { id: penalty.judgeId } },
+        event: { connect: { id: penalty.eventId } },
       },
     });
+
+    // Если штраф применяется ко времени, обновляем результат
+    if (penalty.time && penalty.time > 0) {
+      const existingResult = await prisma.result.findUnique({
+        where: {
+          pilotId_eventId: {
+            pilotId: penalty.pilotId,
+            eventId: penalty.eventId,
+          },
+        },
+      });
+
+      if (existingResult) {
+        await prisma.result.update({
+          where: {
+            pilotId_eventId: {
+              pilotId: penalty.pilotId,
+              eventId: penalty.eventId,
+            },
+          },
+          data: {
+            totalTime: existingResult.totalTime + penalty.time,
+          },
+        });
+      }
+    }
+    
   }
 
   //Новости

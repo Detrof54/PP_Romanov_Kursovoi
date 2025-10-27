@@ -23,6 +23,8 @@ export const calendarRouter = createTRPCRouter({
         });
     }),
 
+    
+      
     //получение списка сезонов (годов)
   getListYear: protectedProcedure
     .query(async ({ ctx, input }) => {

@@ -153,8 +153,9 @@ model Result {
   eventId               String      
   event                 Event       @relation(fields: [eventId], references: [id],onDelete: Cascade)
 
-  position              Int
-  points                Int
+  pozition              Int         @default(0)
+  totalTime             Int         @default(0)//Время в миллисекундах (из него вычисляем позиции и очки)
+  points                Int         @default(0)
   bestLap               Float?
   
   @@unique([pilotId, eventId]) // вместо eventId @unique
@@ -166,9 +167,9 @@ model Result {
 model Penalty {
   id          String   @id @default(cuid())
   reason      String   // причина штрафа
-  points      Int?     // штрафные очки (если снимаются)
+  // points      Int?     // штрафные очки (если снимаются)
   time        Int?     // штраф в секундах (если применяется ко времени)
-  disqualified Boolean @default(false) // дисквалификация
+  // disqualified Boolean @default(false) // дисквалификация
 
 
   // связи
