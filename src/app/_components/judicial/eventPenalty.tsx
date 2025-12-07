@@ -32,6 +32,7 @@ interface propsPenalties {
   createdAt: Date;
   updatedAt: Date;
   judgeId: string;
+  pilot: Driver;
 }
 
 
@@ -54,8 +55,9 @@ export default function EventPenalty({penalties}:{penalties:propsPenalties[]}){
                             <tbody>
                                 {penalties.map((penalty) => (
                                     <tr key={penalty.id} className="border-b border-gray-600">
-                                        <td className="py-2 px-3">Пилот #{penalty.pilotId}</td>
-                                        <td className="py-2 px-3">+{penalty.time}с</td>
+                                        <td className="py-2 px-3">{penalty.pilot.user?.surname} {penalty.pilot.user?.firstname}</td>
+                                        <td className="py-2 px-3">{penalty.reason}</td>
+                                        <td className="py-2 px-3">{penalty.time ? `+${(penalty.time / 1000)}с` : "-"}</td>
                                     </tr>
                                 ))}
                             </tbody>

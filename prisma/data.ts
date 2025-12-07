@@ -6,8 +6,9 @@ export const admins = [
         id: "user-admin",
         firstname: "Админ",
         surname: "Системный",
-        email: "admin@example.com",
+        email: "adminis@err.com",
         role: Role.ADMIN,
+        judge: { id: "user-admin" },
     },
     {
         id: "user-admin2",
@@ -15,6 +16,7 @@ export const admins = [
         surname: "Системный2",
         email: "admin2@example.com",
         role: Role.ADMIN,
+        judge: { id: "user-admin2" },
     },
 ]
 
@@ -851,7 +853,7 @@ export const results = [
   {
     id: "result-event-1-3-2025-p10",
     pilotId: "pilot10",
-    eventId: "event-1-2-2025",
+    eventId: "event-1-3-2025",
     pozition: 10,
     totalTime: 377000,       
     points: 1,

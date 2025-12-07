@@ -24,3 +24,8 @@ export async function isJudical() {
         return false
     return true
 }
+
+export async function getiDJudical() {
+    const session = await auth();
+    return session?.user.id
+}

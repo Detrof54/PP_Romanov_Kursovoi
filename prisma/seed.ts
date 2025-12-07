@@ -110,7 +110,12 @@ async function main() {
         surname: admin.surname,
         email: admin.email,
         role: Role.ADMIN,
-      }
+        emailVerified: new Date(),
+        judge: {
+          create: admin.judge,
+        },
+      },
+      include: { judge: true },
       });
   }
 
@@ -125,6 +130,7 @@ async function main() {
         surname: user.surname,
         email: user.email,
         role: Role.PILOT,
+        emailVerified: new Date(),
         pilot: {
           create: user.pilot,
         },
@@ -144,6 +150,7 @@ async function main() {
         surname: user.surname,
         email: user.email,
         role: Role.JUDGE,
+        emailVerified: new Date(),
         judge: {
           create: user.judge,
         },
@@ -157,7 +164,7 @@ async function main() {
 // ===== SEASON WEEKENDS =====
   // Создание сезонов
   for (const season of seasons) {
-    prisma.season.upsert({
+    await prisma.season.upsert({
       where: { id: season.id },
       update: {},
       create: { id: season.id, 

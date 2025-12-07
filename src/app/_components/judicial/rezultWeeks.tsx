@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import EventRezult from "./eventRezult";
 import EventPenalty from "./eventPenalty";
 
-export default function CurrentRezultWeeks() { 
+export default function RezultWeeks() { 
     const currentDate = new Date().getFullYear();
     const [year, setYear] = useState<number>(currentDate);
     const [visibleWeekends, setVisibleWeekends] = useState<number>(2); // Показываем первые 3 этапа

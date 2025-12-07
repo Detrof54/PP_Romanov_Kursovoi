@@ -41,11 +41,6 @@ function TypeEvent(eventType:RaceType){
         return "Гонка"
     return "Тестовые заезды"
 }
-const sortByBestLap = (a: propsRezult, b: propsRezult) => {
-  const lapA = a.bestLap ?? Number.MAX_SAFE_INTEGER;
-  const lapB = b.bestLap ?? Number.MAX_SAFE_INTEGER;
-  return lapA - lapB;
-}
 
 function TimeToFormat(time: number): string {
     if (time < 0 || !isFinite(time)) {
@@ -60,20 +55,28 @@ function TimeToFormat(time: number): string {
     const formattedMinutes = minutes.toString();
     const formattedSeconds = seconds.toString().padStart(2, '0');
     const formattedMilliseconds = milliseconds.toString().padStart(3, '0');
-    return `${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}c`;
+    return `${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
 }
 
 export default function EventRezult({results,eventType, data}:{results: propsRezult[], eventType:RaceType, data: Date}){
-    let leaderTime = 0
+    const leader = results.find(r => r.pozition === 1);
+    const leaderTime = leader?.totalTime ?? 0;
+    const poul = leader?.bestLap ?? 0;
+
+
+
     return (
         <div className="bg-gray-900 p-4 text-white">
             <h4 className="font-medium mb-3 text-lg">
                 Событие: {TypeEvent(eventType)} • {data.toLocaleDateString()}
             </h4>
+
             {results.length > 0 ? (
                 <div className="overflow-x-auto">
-                    { eventType === "RACE" &&
-                        (<table className="w-full text-sm">
+
+                    {/* --- RACE --- */}
+                    {eventType === "RACE" && (
+                        <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-gray-600">
                                     <th className="text-left py-2 px-3">Место</th>
@@ -83,56 +86,64 @@ export default function EventRezult({results,eventType, data}:{results: propsRez
                                     <th className="text-left py-2 px-3">Лучший круг</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {results
-                                    .sort((a, b) => a.totalTime - b.totalTime) // Сортировка по времени
-                                    .map((result, position) => (
+                                    .sort((a, b) => a.pozition - b.pozition) // 🔥 сортировка по месту
+                                    .map((result) => (
                                         <tr key={result.id} className="border-b border-gray-600 hover:bg-gray-600">
-                                            <td className="py-2 px-3">{position}</td>
-                                            <td className="py-2 px-3">{result.driver.user?.firstname + " " + result.driver.user?.firstname}</td>
-                                            <td className="py-2 px-3">{position === 1 ? (leaderTime = result.totalTime, "Лидер") : `+${TimeToFormat(result.totalTime-leaderTime)}`}</td>
+                                            <td className="py-2 px-3">{result.pozition}</td>
+                                            <td className="py-2 px-3">
+                                                {result.driver.user?.firstname} {result.driver.user?.surname}
+                                            </td>
+                                            <td className="py-2 px-3">
+                                                {result.pozition === 1 ? "Лидер": `+${TimeToFormat(result.totalTime-leaderTime)}`}
+                                            </td>
                                             <td className="py-2 px-3">{result.points}</td>
                                             <td className="py-2 px-3">
-                                                {result.bestLap ? `${TimeToFormat(result.bestLap)}` : '-'}
+                                                {result.bestLap ? TimeToFormat(result.bestLap) : "-"}
                                             </td>
                                         </tr>
                                     ))}
                             </tbody>
-                        </table>)
-                    }
-                    { eventType === "QUALIFICATION" || eventType === "TEST_RACE" &&
-                        (<table className="w-full text-sm">
+                        </table>
+                    )}
+
+                    {/* --- QUALIFICATION & TEST_RACE --- */}
+                    {(eventType === "QUALIFICATION" || eventType === "TEST_RACE") && (
+                        <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-gray-600">
                                     <th className="text-left py-2 px-3">Место</th>
                                     <th className="text-left py-2 px-3">Пилот</th>
                                     <th className="text-left py-2 px-3">Лучший круг</th>
+                                    <th className="text-left py-2 px-3">Отставание</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {results
-                                    .sort(sortByBestLap) // Сортировка по времени
-                                    .map((result, position) => (
+                                    .sort((a, b) => a.pozition - b.pozition) // 🔥 сортировка по месту
+                                    .map((result) => (
                                         <tr key={result.id} className="border-b border-gray-600 hover:bg-gray-600">
-                                            <td className="py-2 px-3">{position}</td>
-                                            <td className="py-2 px-3">{result.driver.user?.firstname + " " + result.driver.user?.firstname}</td>
+                                            <td className="py-2 px-3">{result.pozition}</td>
                                             <td className="py-2 px-3">
-                                                {result.bestLap ? `${TimeToFormat(result.bestLap)}` : '-'}
+                                                {result.driver.user?.firstname} {result.driver.user?.surname}
                                             </td>
+                                            <td className="py-2 px-3">
+                                                {result.bestLap ? TimeToFormat(result.bestLap) : "-"}
+                                            </td>
+                                            <td> {result.bestLap ? result.pozition === 1 ? "Поул":`+${TimeToFormat(result.bestLap-poul)}` : "Нет"} </td>
                                         </tr>
                                     ))}
                             </tbody>
-                        </table>)
-                    }
-
+                        </table>
+                    )}
 
                 </div>
             ) : (
                 <p className="text-gray-400 text-center py-4">Нет результатов</p>
             )}
-
-
-
         </div>
-    )
+    );
 }
