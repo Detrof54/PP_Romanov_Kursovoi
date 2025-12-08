@@ -220,6 +220,117 @@ createFullProtocol: publicProcedure
 
 
   //обновление протокола (результата)
+  updateFullProtocol: publicProcedure
+  .input(
+    z.object({
+      eventId: z.string(),
+      judgeId: z.string(),
+      eventType: z.enum(["TEST_RACE", "QUALIFICATION", "RACE"]),
+      results: z.array(
+        z.object({
+          pilotId: z.string(),
+          bestLap: z.number().nullable(),
+          totalTime: z.number().nullable(),
+        })
+      ),
+      penalties: z
+        .array(
+          z.object({
+            id: z.string().optional(), // ← важное отличие: penalty может уже существовать
+            pilotId: z.string(),
+            reason: z.string(),
+            time: z.number(),
+          })
+        )
+        .optional()
+        .default([]),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    const { eventId, judgeId, results, penalties, eventType } = input;
+
+    // --- 1. Сортировка по типу заезда ---
+    const sorted = [...results].sort((a, b) => {
+      if (eventType === "RACE") {
+        const ta = a.totalTime ?? Infinity;
+        const tb = b.totalTime ?? Infinity;
+        return ta - tb;
+      }
+      const la = a.bestLap ?? Infinity;
+      const lb = b.bestLap ?? Infinity;
+      return la - lb;
+    });
+
+    // --- 2. Рассчитываем результаты ---
+    const resultsData = sorted.map((item, index) => {
+      const pozition = index + 1;
+
+      const points =
+        eventType === "RACE"
+          ? Math.max(25 - (pozition - 1) * 2, 0)
+          : 0;
+
+      return {
+        pilotId: item.pilotId,
+        eventId,
+        pozition,
+        totalTime: item.totalTime ?? 0,
+        bestLap: item.bestLap ?? null,
+        points,
+      };
+    });
+
+    // --- 3. Транзакция обновления ---
+    await ctx.db.$transaction(async (tx) => {
+      // === Обновление / создание результатов ===
+      for (const data of resultsData) {
+        await tx.result.upsert({
+          where: {
+            pilotId_eventId: {
+              pilotId: data.pilotId,
+              eventId: eventId,
+            },
+          },
+          update: {
+            pozition: data.pozition,
+            totalTime: data.totalTime,
+            bestLap: data.bestLap,
+            points: data.points,
+          },
+          create: data,
+        });
+      }
+
+      // === Обновление / создание штрафов ===
+      for (const p of penalties) {
+        if (p.id) {
+          // обновление уже существующего штрафа
+          await tx.penalty.update({
+            where: { id: p.id },
+            data: {
+              reason: p.reason,
+              time: p.time,
+            },
+          });
+        } else {
+          // создание нового штрафа
+          await tx.penalty.create({
+            data: {
+              pilotId: p.pilotId,
+              eventId,
+              judgeId,
+              reason: p.reason,
+              time: p.time,
+            },
+          });
+        }
+      }
+    });
+
+    return { status: "ok" };
+  }),
+
+
 
   //удаления протокола (результата)
   DeleteProtocol: publicProcedure
@@ -242,8 +353,6 @@ createFullProtocol: publicProcedure
       return { success: true };
     }),
 
-
-  //админские возможности CRUD над результатами
 
 
 });

@@ -3,7 +3,8 @@
 import { api } from "~/trpc/react";
 import EventRezult from "./eventRezult";
 import EventPenalty from "./eventPenalty";
-import AddProtocol from "./AddProtocolAndPenalty";
+import AddProtocol from "./AddProtocol";
+import DeleteProtocol from "./DeleteProtocol";
 
 interface InterfaceProps {
   idJudicalorAdmin?: string;
@@ -38,6 +39,12 @@ export default function ProtocolAndPenalty({ idJudicalorAdmin, flag }: Interface
     return <AddProtocol eventId={event.id} pilots={pilots} eventType={event.type} judgeId={judgeId} />;
   };
 
+  const renderDelProtocol = (event: typeof practice | typeof qualification | typeof race | undefined) => {
+    if (event && (event.results && event.results.length > 0) && idJudicalorAdmin && flag){ 
+        return <DeleteProtocol eventId= {event?.id}/>;
+    }
+    return null;
+  };
   
   const renderEventCard = (title: string, event: typeof practice | typeof qualification | typeof race | undefined) => (
     <div className="bg-gray-700 rounded p-3 flex flex-col gap-4 w-full">
@@ -59,6 +66,7 @@ export default function ProtocolAndPenalty({ idJudicalorAdmin, flag }: Interface
           )}
 
           {renderAddProtocol(event)}
+          {renderDelProtocol(event)}
         </>
       ) : (
         <p className="text-gray-400 text-center">Не назначено</p>
