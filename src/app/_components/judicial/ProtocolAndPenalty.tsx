@@ -5,6 +5,7 @@ import EventRezult from "./eventRezult";
 import EventPenalty from "./eventPenalty";
 import AddProtocol from "./AddProtocol";
 import DeleteProtocol from "./DeleteProtocol";
+import UpdateProtocol from "./UpdateProtocol";
 
 interface InterfaceProps {
   idJudicalorAdmin?: string;
@@ -46,6 +47,17 @@ export default function ProtocolAndPenalty({ idJudicalorAdmin, flag }: Interface
     return null;
   };
   
+  const renderUpdateProtocol = (event: typeof practice | typeof qualification | typeof race | undefined) => {
+    if (!event || !idJudicalorAdmin || !flag || event.results.length <= 0) return null;
+    return (
+      <UpdateProtocol
+        event={event}
+        judgeId={judgeId}
+      />
+    );
+  };
+
+
   const renderEventCard = (title: string, event: typeof practice | typeof qualification | typeof race | undefined) => (
     <div className="bg-gray-700 rounded p-3 flex flex-col gap-4 w-full">
       <h3 className="text-lg font-semibold text-center">{title}</h3>
@@ -67,6 +79,7 @@ export default function ProtocolAndPenalty({ idJudicalorAdmin, flag }: Interface
 
           {renderAddProtocol(event)}
           {renderDelProtocol(event)}
+          {renderUpdateProtocol(event)}
         </>
       ) : (
         <p className="text-gray-400 text-center">Не назначено</p>
