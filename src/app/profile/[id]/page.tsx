@@ -4,6 +4,7 @@ import { api } from "~/trpc/server";
 import { UserProfile } from "~/app/_components/profile/UserProfile";
 import { PilotProfile } from "~/app/_components/profile/PilotProfile";
 import { JudgeProfile } from "~/app/_components/profile/JudgeProfile";
+import { AdminProfile } from "~/app/_components/profile/AdminProfile";
 
 interface PageProps {
   params: {
@@ -27,9 +28,10 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
-      {<UserProfile user={user} />}
-      {user.role === "PILOT" && user.pilot && <PilotProfile pilot={user.pilot} />}
-      {user.role === "JUDGE" && user.judge && <JudgeProfile judge={user.judge} />}
+      {user.role === "USER" && <UserProfile user={user} />}
+      {user.role === "ADMIN" && <AdminProfile user_admin={user} />}
+      {user.role === "PILOT" && user.pilot && <PilotProfile user_pilot={user} />}
+      {user.role === "JUDGE" && user.judge && <JudgeProfile user_judge={user} />}
     </div>
   );
 }
