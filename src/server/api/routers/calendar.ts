@@ -3,7 +3,6 @@ import { number, z } from "zod";
 import { RaceType } from "@prisma/client";
 
 export const calendarRouter = createTRPCRouter({
-  //получение списка викендов (этапов)
   getListWeekends: protectedProcedure
     .input(
       z.object({
@@ -25,18 +24,16 @@ export const calendarRouter = createTRPCRouter({
 
     
       
-    //получение списка сезонов (годов)
   getListYear: protectedProcedure
     .query(async ({ ctx, input }) => {
         const seasons = await ctx.db.season.findMany({
             select: { year: true },
-            orderBy: { year: "desc" }, // чтобы список шёл по убыванию
+            orderBy: { year: "desc" }, 
         });
 
         return seasons.map((s) => s.year);
     }),
 
-  //Создание этапа
   createWeekend: protectedProcedure
     .input(
       z.object({
@@ -81,7 +78,6 @@ export const calendarRouter = createTRPCRouter({
     return weekend;
   }),
 
-  //обновление этапа
   updateWeekend: protectedProcedure
   .input(z.object({
     id: z.string(),
@@ -105,7 +101,7 @@ export const calendarRouter = createTRPCRouter({
         dateStart: new Date(input.dateStart),
         dateEnd: new Date(input.dateEnd),
         events: {
-          deleteMany: {}, // удаляем старые события
+          deleteMany: {}, 
           create: input.events.map((e) => ({
             type: e.type,
             data: new Date(e.data),
@@ -115,7 +111,7 @@ export const calendarRouter = createTRPCRouter({
     });
   }),
 
-  //удаление викенда
+
   deleteWeekend: protectedProcedure
   .input(z.object({ weekendId: z.string() }))
   .mutation(async ({ ctx, input }) => {
@@ -125,14 +121,14 @@ export const calendarRouter = createTRPCRouter({
   }),
 
 
-  //CRUD для сезонов
+ 
   getListYearRead: protectedProcedure
     .query(async ({ ctx }) => {
     const seasons = await ctx.db.season.findMany({
-      select: { id: true, year: true }, // добавляем id
+      select: { id: true, year: true }, 
       orderBy: { year: "desc" },
     });
-    return seasons; // возвращает {id: string, year: number}[]
+    return seasons; 
   }),
 
 createSeason: protectedProcedure
@@ -157,7 +153,7 @@ deleteSeason: protectedProcedure
       where: { id: input.id },
       data: {
         pilots: {
-          set: [] // Разрываем все связи с пилотами
+          set: [] 
         }
       }
     });

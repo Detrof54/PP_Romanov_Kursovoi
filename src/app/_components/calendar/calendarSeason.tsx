@@ -25,7 +25,6 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
   const { data: season, isLoading, error, refetch } =
     api.calendarRouter.getListWeekends.useQuery({ year: selectedYear });
 
-  // 🧩 состояния модалок
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editWeekend, setEditWeekend] = useState<any | null>(null);
@@ -38,7 +37,6 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
 
   return (
     <div className="bg-gray-900 p-4 text-white">
-      {/* Форма выбора года */}
       <form method="get">
         <label htmlFor="yearSelect" className="mr-2">
           Выберите год:
@@ -60,14 +58,13 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
 
       <h2 className="text-2xl font-bold mb-4">Сезон {season.year}</h2>
 
-      {/* Список этапов */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {season.weekend.map((weekend) => (
           <div
             key={weekend.id}
             className="border border-gray-700 rounded-xl p-5 bg-gray-800"
           >
-            {/* 🧩 Заголовок с кнопками Редактировать и Удалить */}
+
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-xl font-semibold">
                 {weekend.nameTrassa || "Без названия"}
@@ -75,7 +72,7 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
 
               {role === "ADMIN" && (
                 <div className="flex gap-2">
-                  {/* Редактировать */}
+
                   <button
                     onClick={() => {
                       setEditWeekend(weekend);
@@ -87,7 +84,7 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
                     ✏️
                   </button>
 
-                  {/* Удалить */}
+
                   <button
                     onClick={() => {
                       setDeleteTarget({
@@ -146,7 +143,6 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
           </div>
         ))}
 
-        {/* Кнопка создать новый этап */}
         {role === "ADMIN" && (
           <button
             onClick={() => setShowModal(true)}
@@ -157,7 +153,6 @@ export default function CalendarSeason({ years, role }: CalendarSeasonProps) {
         )}
       </div>
 
-      {/* 🧩 Модалки */}
       {showModal && (
         <CreateNewStage
           seasonId={season.id}

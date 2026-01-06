@@ -3,19 +3,6 @@ import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays, Clock } from "lucide-react";
 import { api } from "../../../trpc/react";
 
-// type Event = {
-//   id: string;
-//   type: "TEST_RACE" | "QUALIFICATION" | "RACE";
-//   data: string; 
-// };
-
-// type WeekendProps = {
-//   city: string;
-//   nameTrassa: string;
-//   seasonYear: number;
-//   events: Event[];
-// };
-
 type Weekend = {
   id: string;
   city: string;
@@ -39,9 +26,6 @@ export default function CurrentWeekendDark({ weekendPCN }: WeekendOverviewProps)
 
   const {current} = weekendPCN
 
-//tRPC запрос
-// const { data: weekend, isLoading, isError } = api.mainPageRouter.getCurrentWeekend.useQuery();
-
 const formatDateTime = (date: string | Date) => {
   const d = date instanceof Date ? date : new Date(date);
   const day = d.getDate();
@@ -52,8 +36,6 @@ const formatDateTime = (date: string | Date) => {
   return `${day} ${month}, ${hours}:${minutes}`;
 };
 
-
-  // if (isLoading) return <p className="text-white text-center">Загрузка...</p>;
   if (!current) return (
     <div>
       <h2 className="text-3xl font-bold text-center">
@@ -65,7 +47,6 @@ const formatDateTime = (date: string | Date) => {
   );
 
 
-
   const practice = current?.events.find(e => e.type === "TEST_RACE");
   const qualification = current?.events.find(e => e.type === "QUALIFICATION");
   const race = current?.events.find(e => e.type === "RACE");
@@ -73,13 +54,11 @@ const formatDateTime = (date: string | Date) => {
   
 return (
     <div className="flex flex-col items-center gap-8 p-8 bg-transparent text-white">
-      {/* Заголовок */}
       <h2 className="text-3xl font-bold text-center">
         {current.city} — {current.nameTrassa} ({current.seasonYear})
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-        {/* Тренировка */}
         <Card className="!bg-gray-800 border border-gray-700 hover:scale-105 transition-transform duration-300">
           <CardContent className="flex flex-col items-center text-center gap-3">
             <h3 className="text-lg font-semibold">Тренировка</h3>
@@ -94,7 +73,6 @@ return (
           </CardContent>
         </Card>
 
-        {/* Квалификация */}
         <Card className="!bg-gray-800 border border-gray-700 hover:scale-105 transition-transform duration-300">
           <CardContent className="flex flex-col items-center text-center gap-3">
             <h3 className="text-lg font-semibold">Квалификация</h3>
@@ -106,10 +84,9 @@ return (
             ) : (
               <p className="text-gray-400">Не назначено</p>
             )}
-          </CardContent>
+          </CardContent> 
         </Card>
 
-        {/* Гонка */}
         <Card className="!bg-gray-800 border border-gray-700 hover:scale-105 transition-transform duration-300">
           <CardContent className="flex flex-col items-center text-center gap-3">
             <h3 className="text-lg font-semibold">Гонка</h3>

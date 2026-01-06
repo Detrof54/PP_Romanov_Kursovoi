@@ -10,7 +10,7 @@ export function SearchPilot() {
 
   const query = searchParams.get("query")?.toLowerCase() || "";
   const currentPage = Number(searchParams.get("page")) || 1;
-  const itemsPerPage = 5; // сколько пилотов на страницу
+  const itemsPerPage = 5; 
 
   const { data: pilots, isLoading, error } = api.pilotsRouter.getPilots.useQuery();
 
@@ -18,13 +18,12 @@ export function SearchPilot() {
   if (error) return <p>Ошибка загрузки</p>;
   if (!pilots || pilots.length === 0) return <p>Нет пилотов</p>;
 
-  // фильтрация по имени и фамилии
   const filteredPilots = pilots.filter((pilot) => {
     const fullname = `${pilot.user?.firstname ?? ""} ${pilot.user?.surname ?? ""}`.toLowerCase();
     return fullname.includes(query);
   });
 
-  // пагинация
+
   const totalPages = Math.ceil(filteredPilots.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -32,10 +31,8 @@ export function SearchPilot() {
 
   return (
     <div className="space-y-4">
-      {/* поле поиска */}
       <SearchInput placeholder="Найти пилота..." paramString="query" />
 
-      {/* результаты поиска */}
       <ul className="divide-y divide-gray-200 border rounded-md">
         {paginatedPilots.length === 0 && (
           <li className="p-3 text-gray-500">Ничего не найдено</li>
@@ -67,7 +64,6 @@ export function SearchPilot() {
         })}
       </ul>
 
-      {/* пагинация */}
       {totalPages > 1 && (
         <div className="flex justify-center pt-4">
           <Pagination totalPages={totalPages} />

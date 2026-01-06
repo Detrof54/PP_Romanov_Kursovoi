@@ -17,7 +17,6 @@ export default function UpdateProtocolForm({
 
   const utils = api.useUtils();
 
-  // --- 1. Загружаем старые данные в state ---
   const [rows, setRows] = useState(() =>
     results.map((r: any) => ({
       pilotId: r.pilotId,
@@ -90,7 +89,6 @@ export default function UpdateProtocolForm({
           Обновление протокола
         </h2>
 
-        {/* === Results === */}
         <div className="flex flex-col gap-4">
           {rows.map((row) => (
             <div
@@ -109,7 +107,6 @@ export default function UpdateProtocolForm({
 
               </p>
 
-              {/* Best Lap */}
               <input
                 className="p-2 bg-gray-700 rounded"
                 value={row.bestLap}
@@ -119,7 +116,6 @@ export default function UpdateProtocolForm({
                 placeholder="Быстрый круг"
               />
 
-              {/* Total Time (только RACE) */}
               {eventType === "RACE" && (
                 <input
                   className="p-2 bg-gray-700 rounded"
@@ -134,7 +130,6 @@ export default function UpdateProtocolForm({
           ))}
         </div>
 
-        {/* === Penalties === */}
         <h3 className="text-lg font-semibold mt-6 mb-2">
           Штрафы
         </h3>
@@ -166,7 +161,6 @@ export default function UpdateProtocolForm({
           ))}
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-between mt-6">
           <button
             onClick={onClose}

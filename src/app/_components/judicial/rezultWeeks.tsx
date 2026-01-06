@@ -8,7 +8,7 @@ import EventPenalty from "./eventPenalty";
 export default function RezultWeeks() { 
     const currentDate = new Date().getFullYear();
     const [year, setYear] = useState<number>(currentDate);
-    const [visibleWeekends, setVisibleWeekends] = useState<number>(2); // Показываем первые 3 этапа
+    const [visibleWeekends, setVisibleWeekends] = useState<number>(2); 
 
     const { data: season, isLoading, error } = api.judgesRouter.getListWeekends.useQuery({ year });
     const { data: listSeason } = api.judgesRouter.getListYear.useQuery(); 
@@ -16,11 +16,11 @@ export default function RezultWeeks() {
     const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedYear = parseInt(e.target.value);
         setYear(selectedYear);
-        setVisibleWeekends(2); // Сбрасываем при смене года
+        setVisibleWeekends(2); 
     };
 
     const loadMoreWeekends = () => {
-        setVisibleWeekends(prev => prev + 2); // Показываем еще 3 этапа
+        setVisibleWeekends(prev => prev + 2); 
     };
 
     if (isLoading) return <p>Загрузка...</p>;
@@ -29,7 +29,6 @@ export default function RezultWeeks() {
     if (!season) return <p>Сезон не найден</p>;
     if (!season.weekend || season.weekend.length === 0) return <p>Нет этапов в сезоне</p>;
 
-    // Берем только видимые этапы
     const visibleWeekendsData = season.weekend.slice(0, visibleWeekends);
     const hasMoreWeekends = visibleWeekends < season.weekend.length;
 
@@ -56,10 +55,8 @@ export default function RezultWeeks() {
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-center">Сезон {year}</h2>
                 
-                {/* Отображаем только видимые этапы */}
                 {visibleWeekendsData.map((weekend, index) => (
                     <div key={weekend.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                        {/* Заголовок викенда */}
                         <div className="mb-4">
                             <h3 className="text-xl font-semibold">
                                 Этап {weekend.stage}: {weekend.nameTrassa}
@@ -69,13 +66,10 @@ export default function RezultWeeks() {
                             </p>
                         </div>
 
-                        {/* События викенда в grid по 3 в ряд */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {weekend.events.map((event) => (
                                 <div key={event.id} className="bg-gray-700 rounded p-3">
-                                    {/*Результаты эвента*/}
                                     <EventRezult results={event.results} eventType={event.type} data={event.data}/>
-                                    {/* Штрафы */}
                                     <EventPenalty penalties={event.penalties}/>
                                 </div>
                             ))}
@@ -86,7 +80,6 @@ export default function RezultWeeks() {
                     </div>
                 ))}
 
-                {/* Кнопка "Показать еще" */}
                 {hasMoreWeekends && (
                     <div className="text-center mt-6">
                         <button
@@ -98,7 +91,6 @@ export default function RezultWeeks() {
                     </div>
                 )}
 
-                {/* Сообщение когда все этапы показаны */}
                 {!hasMoreWeekends && season.weekend.length > 3 && (
                     <p className="text-gray-400 text-center mt-4">
                         Все этапы сезона показаны

@@ -25,6 +25,14 @@ export async function isJudical() {
     return true
 }
 
+export async function isUser() {
+    const session = await auth();
+    if (!session) return false;
+    if (session.user.role !== $Enums.Role.USER)
+        return false
+    return true
+}
+
 export async function getiDJudical() {
     const session = await auth();
     return session?.user.id

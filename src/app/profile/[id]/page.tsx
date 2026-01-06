@@ -15,7 +15,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = params;
 
-  // Запрашиваем пользователя с ролями и связями
+
   const user = await api.userProfileRouter.getUserById({ id });
 
   if (!user) {

@@ -19,10 +19,8 @@ export function PersonalСreditTable({ years }: CalendarSeasonProps){
     const pilotsWithPoints = season.pilots.map((pilot) => {
         const totalResultsPoints = pilot.results.reduce(
         (sum, r) => sum + (r.points ?? 0),0);
-        const totalPenaltyPoints = pilot.penalties.reduce(
-        (sum, p) => sum + (p.points ?? 0),0);
 
-      const totalPoints = totalResultsPoints - totalPenaltyPoints;
+      const totalPoints = totalResultsPoints;
 
       return {
         id: pilot.id,
@@ -32,7 +30,6 @@ export function PersonalСreditTable({ years }: CalendarSeasonProps){
       };
     }) ?? [];
 
-  // сортируем по очкам
   const sortedPilots = pilotsWithPoints.sort((a, b) => b.points - a.points);
 
     return (

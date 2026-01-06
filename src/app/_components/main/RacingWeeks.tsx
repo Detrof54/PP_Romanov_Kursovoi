@@ -2,8 +2,6 @@
 
 import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
-
-// api для клиента!!!
 import { api } from "~/trpc/react";
 
 

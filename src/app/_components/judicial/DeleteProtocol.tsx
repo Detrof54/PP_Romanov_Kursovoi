@@ -28,7 +28,6 @@ export default function DeleteProtocol({ eventId }: { eventId: string }) {
 
   return (
     <>
-      {/* Кнопка удаления */}
       <button
         onClick={() => setOpen(true)}
         className="
@@ -39,7 +38,6 @@ export default function DeleteProtocol({ eventId }: { eventId: string }) {
         Удалить протокол
       </button>
 
-      {/* Модалка */}
       {open && (
         <div
           className="

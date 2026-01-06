@@ -19,7 +19,6 @@ export default function SeasonManager() {
   const [deleteTarget, setDeleteTarget] = useState<Season | null>(null);
   const [yearInput, setYearInput] = useState("");
 
-  // 🧱 Создание сезона
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!yearInput) return;
@@ -29,7 +28,6 @@ export default function SeasonManager() {
     refetch();
   };
 
-  // ✏️ Обновление сезона
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editTarget) return;
@@ -39,7 +37,6 @@ export default function SeasonManager() {
     refetch();
   };
 
-  // 🗑️ Удаление сезона
   const handleDelete = async () => {
     if (!deleteTarget) return;
     await deleteSeason.mutateAsync({ id: deleteTarget.id });
@@ -54,7 +51,6 @@ export default function SeasonManager() {
     <div className="bg-gray-900 text-white p-6 rounded-lg">
       <h2 className="text-2xl font-bold mb-4">Управление сезонами</h2>
 
-      {/* Список сезонов */}
       <ul className="space-y-2 mb-6">
         {seasons?.map((s) => (
           <li
@@ -85,7 +81,6 @@ export default function SeasonManager() {
         ))}
       </ul>
 
-      {/* ➕ Кнопка добавить */}
       {!showCreate && !editTarget && (
         <button
           onClick={() => setShowCreate(true)}
@@ -95,7 +90,6 @@ export default function SeasonManager() {
         </button>
       )}
 
-      {/* 📅 Форма создания/редактирования */}
       {(showCreate || editTarget) && (
         <form
           onSubmit={editTarget ? handleUpdate : handleCreate}
@@ -132,7 +126,6 @@ export default function SeasonManager() {
         </form>
       )}
 
-      {/* ⚠️ Модалка удаления */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-lg w-full max-w-sm">

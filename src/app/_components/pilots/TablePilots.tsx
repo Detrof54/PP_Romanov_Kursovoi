@@ -45,7 +45,7 @@ export function TablePilots() {
                   ? pilot.seasons.map((s) => s.year).join(", ")
                   : "Не участвовал";
 
-              const status = "Участник"; // ⚡️ пока заглушка
+              const status = "Участник"; 
 
               return (
                 <tr key={pilot.id} className="border-t">
@@ -75,7 +75,6 @@ export function TablePilots() {
         </table>
       </div>
 
-      {/* пагинация */}
       <div className="flex justify-center">
         <Pagination totalPages={totalPages} />
       </div>

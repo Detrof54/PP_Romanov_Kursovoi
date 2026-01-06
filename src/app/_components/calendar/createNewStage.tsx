@@ -36,7 +36,6 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
 
     setErrors(null);
 
-    // Проверяем, что все поля заполнены
     if (!form.nameTrassa.trim() || !form.city.trim()) {
       setErrors("Поля 'Название трассы' и 'Город' обязательны.");
       return;
@@ -47,18 +46,15 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
       return;
     }
 
-    // Формируем массив событий
     const eventsArray = Object.entries(events).map(([type, date]) => ({
       type: type as "TEST_RACE" | "QUALIFICATION" | "RACE",
       data: date,
     }));
 
-    // Определяем начало и конец уикенда по событиям
     const eventDates = eventsArray.map((e) => new Date(e.data));
     const dateStart = eventDates.reduce((a, b) => (a < b ? a : b)).toISOString().split("T")[0] || "";
     const dateEnd = eventDates.reduce((a, b) => (a > b ? a : b)).toISOString().split("T")[0] || "";
 
-    // Отправляем на сервер
     await createWeekend.mutateAsync({
       seasonId,
       stage,
@@ -78,7 +74,6 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
         <form onSubmit={handleSubmit} className="space-y-4">
           {errors && <div className="text-red-400 text-sm font-semibold">{errors}</div>}
 
-          {/* Название трассы */}
           <div>
             <label className="block text-sm mb-1">Название трассы *</label>
             <input
@@ -92,7 +87,6 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
             />
           </div>
 
-          {/* Город */}
           <div>
             <label className="block text-sm mb-1">Город *</label>
             <input
@@ -106,7 +100,6 @@ export default function CreateNewStage({ seasonId, stage, onClose, onCreated }: 
             />
           </div>
 
-          {/* События */}
           <p className="font-semibold mt-4">События *</p>
           {(["TEST_RACE", "QUALIFICATION", "RACE"] as const).map((type) => (
             <div key={type}>

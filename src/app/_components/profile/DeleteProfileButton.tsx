@@ -17,7 +17,7 @@ export function DeleteProfileButton({ userId, pilotId, judgeId }: Props) {
   const deleteProfile =
     api.userProfileRouter.deleteProfile.useMutation({
       onSuccess: () => {
-        router.refresh(); // 🔄 перезагрузка server components
+        router.refresh(); 
       },
     });
 

@@ -10,7 +10,7 @@ export function SearchJudge() {
 
   const query = searchParams.get("query")?.toLowerCase() || "";
   const currentPage = Number(searchParams.get("page")) || 1;
-  const itemsPerPage = 5; // количество судей на странице
+  const itemsPerPage = 5; 
 
   const { data: judges, isLoading, error } = api.judgesRouter.getJudges.useQuery();
 
@@ -18,13 +18,11 @@ export function SearchJudge() {
   if (error) return <p>Ошибка загрузки</p>;
   if (!judges || judges.length === 0) return <p>Нет судей</p>;
 
-  // фильтрация по имени и фамилии
   const filteredJudges = judges.filter((judge) => {
     const fullname = `${judge.user?.firstname ?? ""} ${judge.user?.surname ?? ""}`.toLowerCase();
     return fullname.includes(query);
   });
 
-  // пагинация
   const totalPages = Math.ceil(filteredJudges.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -32,10 +30,8 @@ export function SearchJudge() {
 
   return (
     <div className="space-y-4">
-      {/* поле поиска */}
       <SearchInput placeholder="Найти судью..." paramString="query" />
 
-      {/* результаты поиска */}
       <ul className="divide-y divide-gray-200 border rounded-md">
         {paginatedJudges.length === 0 && (
           <li className="p-3 text-gray-500">Ничего не найдено</li>
@@ -67,7 +63,6 @@ export function SearchJudge() {
         })}
       </ul>
 
-      {/* пагинация */}
       {totalPages > 1 && (
         <div className="flex justify-center pt-4">
           <Pagination totalPages={totalPages} />

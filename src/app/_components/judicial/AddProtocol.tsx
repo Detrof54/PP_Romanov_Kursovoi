@@ -36,7 +36,7 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
     }))
   );
   
-  const utils = api.useUtils(); //сброс кэша
+  const utils = api.useUtils(); 
 
   const createProtocol = api.judgesRouter.createFullProtocol.useMutation({
     onSuccess: () => utils.judgesRouter.getCurrentWeekend.invalidate(),
@@ -55,7 +55,6 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
   };
 
   const submit = () => {
-    // ---- Формируем results ----
     const results = rows.map((r) => ({
       pilotId: r.pilotId,
       bestLap: Number(r.bestLap) || null,
@@ -63,7 +62,6 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
         eventType === "RACE" ? Number(r.totalTime) || null : null,
     }));
 
-    // ---- Формируем penalties (только если заполнены) ----
     const parsePenaltyTime = (str: string) => {
       const num = Number(str);
       return isNaN(num) ? null : num;
@@ -73,7 +71,7 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
       .filter((r) => r.penaltyTime && r.reason && parsePenaltyTime(r.penaltyTime) !== null)
       .map((r) => ({
         pilotId: r.pilotId,
-        time: parsePenaltyTime(r.penaltyTime)!, // гарантированно number
+        time: parsePenaltyTime(r.penaltyTime)!, 
         reason: r.reason,
       }));
 
@@ -98,7 +96,6 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
               {`${pilots.find((p) => p.id === row.pilotId)?.user?.surname ?? ""} ${pilots.find((p) => p.id === row.pilotId)?.user?.firstname ?? ""}`}
             </p>
 
-            {/* Best Lap */}
             <input
               className="p-2 rounded bg-gray-800 border border-gray-600"
               placeholder="Быстрый круг (мм:сс:мс)"
@@ -108,7 +105,6 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
               }
             />
 
-            {/* Total Time — только если гонка */}
             {eventType === "RACE" && (
               <input
                 className="p-2 rounded bg-gray-800 border border-gray-600"
@@ -120,7 +116,6 @@ export default function AddProtocol({ eventId, pilots, eventType, judgeId }: Add
               />
             )}
 
-            {/* Penalties */}
             <div className="flex flex-col gap-2">
               <input
                 className="p-2 rounded bg-gray-800 border border-gray-600"

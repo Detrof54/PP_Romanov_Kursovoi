@@ -11,18 +11,16 @@ export const judgesRouter = createTRPCRouter({
     });
   }),
 
-      //получение списка сезонов (годов)
     getListYear: publicProcedure
       .query(async ({ ctx, input }) => {
           const seasons = await ctx.db.season.findMany({
               select: { id:true,year: true },
-              orderBy: { year: "desc" }, // чтобы список шёл по убыванию
+              orderBy: { year: "desc" }, 
           });
   
           return seasons;
       }),
 
-  //получение списка этапов по году
   getListWeekends: publicProcedure
     .input(
       z.object({
@@ -67,7 +65,6 @@ export const judgesRouter = createTRPCRouter({
 
 
     
-  //получаем нужный этап
   getCurrentWeekend: publicProcedure
   .input(z.object({ 
     year: z.number().optional(),
@@ -158,26 +155,21 @@ createFullProtocol: publicProcedure
   )
   .mutation(async ({ ctx, input }) => {
     const { eventId, judgeId, results, penalties, eventType } = input;
-    // --- 1. Сортировка по типу заезда ---
     const sorted = [...results].sort((a, b) => {
       if (eventType === "RACE") {
-        // ГОНКА — сортируем по totalTime
         const ta = a.totalTime ?? Infinity;
         const tb = b.totalTime ?? Infinity;
         return ta - tb;
       }
 
-      // ТРЕНИРОВКА / КВАЛИФИКАЦИЯ — сортируем по bestLap
       const la = a.bestLap ?? Infinity;
       const lb = b.bestLap ?? Infinity;
       return la - lb;
     });
 
-    // --- 2. Формируем данные результатов ---
     const resultsData = sorted.map((item, index) => {
       const pozition = index + 1;
 
-      // ТОЛЬКО гонка начисляет очки
       const points =
         eventType === "RACE"
           ? Math.max(25 - (pozition - 1) * 2, 0)
@@ -193,7 +185,6 @@ createFullProtocol: publicProcedure
       };
     });
 
-    // --- 3. Запись в БД ---
     await ctx.db.$transaction(async (tx) => {
       for (const data of resultsData) {
         await tx.result.create({ data });
@@ -219,7 +210,6 @@ createFullProtocol: publicProcedure
 
 
 
-  //обновление протокола (результата)
   updateFullProtocol: publicProcedure
   .input(
     z.object({
@@ -236,7 +226,7 @@ createFullProtocol: publicProcedure
       penalties: z
         .array(
           z.object({
-            id: z.string().optional(), // ← важное отличие: penalty может уже существовать
+            id: z.string().optional(), 
             pilotId: z.string(),
             reason: z.string(),
             time: z.number(),
@@ -249,7 +239,6 @@ createFullProtocol: publicProcedure
   .mutation(async ({ ctx, input }) => {
     const { eventId, judgeId, results, penalties, eventType } = input;
 
-    // --- 1. Сортировка по типу заезда ---
     const sorted = [...results].sort((a, b) => {
       if (eventType === "RACE") {
         const ta = a.totalTime ?? Infinity;
@@ -261,7 +250,6 @@ createFullProtocol: publicProcedure
       return la - lb;
     });
 
-    // --- 2. Рассчитываем результаты ---
     const resultsData = sorted.map((item, index) => {
       const pozition = index + 1;
 
@@ -280,9 +268,8 @@ createFullProtocol: publicProcedure
       };
     });
 
-    // --- 3. Транзакция обновления ---
+
     await ctx.db.$transaction(async (tx) => {
-      // === Обновление / создание результатов ===
       for (const data of resultsData) {
         await tx.result.upsert({
           where: {
@@ -301,10 +288,8 @@ createFullProtocol: publicProcedure
         });
       }
 
-      // === Обновление / создание штрафов ===
       for (const p of penalties) {
         if (p.id) {
-          // обновление уже существующего штрафа
           await tx.penalty.update({
             where: { id: p.id },
             data: {
@@ -313,7 +298,6 @@ createFullProtocol: publicProcedure
             },
           });
         } else {
-          // создание нового штрафа
           await tx.penalty.create({
             data: {
               pilotId: p.pilotId,
@@ -332,7 +316,6 @@ createFullProtocol: publicProcedure
 
 
 
-  //удаления протокола (результата)
   DeleteProtocol: publicProcedure
     .input(
       z.object({
@@ -340,12 +323,10 @@ createFullProtocol: publicProcedure
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // Удаляем штрафы
       await ctx.db.penalty.deleteMany({
         where: { eventId: input.event_id },
       });
 
-      // Удаляем результаты
       await ctx.db.result.deleteMany({
         where: { eventId: input.event_id },
       });

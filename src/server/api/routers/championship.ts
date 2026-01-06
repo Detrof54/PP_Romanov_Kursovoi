@@ -18,8 +18,8 @@ export const championshipRouter = createTRPCRouter({
         include: {
             pilots: {
             include: {
-                results: true,   // результаты пилота
-                penalties: true, // штрафы пилота
+                results: true,   
+                penalties: true, 
                 user: {
                 select: {
                     firstname: true,
@@ -33,20 +33,18 @@ export const championshipRouter = createTRPCRouter({
     }),
     getListYearBeforeCurrent: protectedProcedure
     .query(async ({ ctx }) => {
-        // находим текущий сезон
         const currentSeason = await ctx.db.season.findFirst({
         where: { isActive: true },
         select: { year: true },
         });
 
         if (!currentSeason) {
-        return []; // если активного сезона нет
+        return []; 
         }
 
-        // достаем все сезоны до текущего включительно
         const seasons = await ctx.db.season.findMany({
         where: {
-            year: { lte: currentSeason.year }, // <= текущий
+            year: { lte: currentSeason.year }, 
         },
         select: { year: true },
         orderBy: { year: "desc" },

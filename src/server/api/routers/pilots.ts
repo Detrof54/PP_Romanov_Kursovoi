@@ -2,7 +2,6 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const pilotsRouter = createTRPCRouter({
-    // получение таблицы пилотов
     getTablePilots: protectedProcedure
     .query(async ({ ctx }) => {
       return ctx.db.pilot.findMany({
