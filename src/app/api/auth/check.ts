@@ -37,3 +37,8 @@ export async function getiDJudical() {
     const session = await auth();
     return session?.user.id
 }
+
+export async function getId() {
+    const session = await auth();
+    return session?.user.id
+}

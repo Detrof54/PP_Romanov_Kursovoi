@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { number, z } from "zod";
 import { RaceType } from "@prisma/client";
+import { isAdmin } from "~/app/api/auth/check";
 
 export const calendarRouter = createTRPCRouter({
   getListWeekends: protectedProcedure
@@ -22,7 +23,6 @@ export const calendarRouter = createTRPCRouter({
         });
     }),
 
-    
       
   getListYear: protectedProcedure
     .query(async ({ ctx, input }) => {
@@ -53,8 +53,7 @@ export const calendarRouter = createTRPCRouter({
       })
   )
   .mutation(async ({ ctx, input }) => {
-    const user = ctx.session?.user;
-    if (user?.role !== "ADMIN") throw new Error("Доступ запрещён");
+    if ( await isAdmin()) throw new Error("Доступ запрещён");
     if (input.dateStart === "") throw new Error("Даты начала этапа нет");
     if (input.dateEnd === "") throw new Error("Даты конца этапа нет");
     const weekend = await ctx.db.weekend.create({
@@ -93,6 +92,7 @@ export const calendarRouter = createTRPCRouter({
     ),
   }))
   .mutation(async ({ ctx, input }) => {
+    if ( await isAdmin()) throw new Error("Доступ запрещён");
     return await ctx.db.weekend.update({
       where: { id: input.id },
       data: {
@@ -115,6 +115,7 @@ export const calendarRouter = createTRPCRouter({
   deleteWeekend: protectedProcedure
   .input(z.object({ weekendId: z.string() }))
   .mutation(async ({ ctx, input }) => {
+    if ( await isAdmin()) throw new Error("Доступ запрещён");
     await ctx.db.weekend.delete({
       where: { id: input.weekendId },
     });
@@ -131,32 +132,35 @@ export const calendarRouter = createTRPCRouter({
     return seasons; 
   }),
 
-createSeason: protectedProcedure
-  .input(z.object({ year: z.number() }))
-  .mutation(async ({ ctx, input }) => {
-    return ctx.db.season.create({ data: { year: input.year } });
-  }),
+  createSeason: protectedProcedure
+    .input(z.object({ year: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      return ctx.db.season.create({ data: { year: input.year } });
+    }),
 
-updateSeason: protectedProcedure
-  .input(z.object({ id: z.string(), year: z.number() }))
-  .mutation(async ({ ctx, input }) => {
-    return ctx.db.season.update({
-      where: { id: input.id },
-      data: { year: input.year },
-    });
-  }),
+  updateSeason: protectedProcedure
+    .input(z.object({ id: z.string(), year: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      return ctx.db.season.update({
+        where: { id: input.id },
+        data: { year: input.year },
+      });
+    }),
 
-deleteSeason: protectedProcedure
-  .input(z.object({ id: z.string() }))
-  .mutation(async ({ ctx, input }) => {
-    await ctx.db.season.update({
-      where: { id: input.id },
-      data: {
-        pilots: {
-          set: [] 
+  deleteSeason: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      await ctx.db.season.update({
+        where: { id: input.id },
+        data: {
+          pilots: {
+            set: [] 
+          }
         }
-      }
-    });
+      });
     return ctx.db.season.delete({ where: { id: input.id } });
   }),
 

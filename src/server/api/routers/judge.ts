@@ -1,5 +1,6 @@
 import { create } from "domain";
 import { z } from "zod";
+import { isAdmin, isJudical } from "~/app/api/auth/check";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const judgesRouter = createTRPCRouter({
@@ -11,15 +12,15 @@ export const judgesRouter = createTRPCRouter({
     });
   }),
 
-    getListYear: publicProcedure
-      .query(async ({ ctx, input }) => {
-          const seasons = await ctx.db.season.findMany({
-              select: { id:true,year: true },
-              orderBy: { year: "desc" }, 
-          });
-  
-          return seasons;
-      }),
+  getListYear: publicProcedure
+    .query(async ({ ctx, input }) => {
+        const seasons = await ctx.db.season.findMany({
+            select: { id:true,year: true },
+            orderBy: { year: "desc" }, 
+        });
+
+        return seasons;
+    }),
 
   getListWeekends: publicProcedure
     .input(
@@ -128,84 +129,86 @@ export const judgesRouter = createTRPCRouter({
   }),
 
 
-createFullProtocol: publicProcedure
-  .input(
-    z.object({
-      eventId: z.string(),
-      judgeId: z.string(),
-      eventType: z.enum(["TEST_RACE", "QUALIFICATION", "RACE"]),
-      results: z.array(
-        z.object({
-          pilotId: z.string(),
-          bestLap: z.number().nullable(),
-          totalTime: z.number().nullable(),
-        })
-      ),
-      penalties: z
-        .array(
+  createFullProtocol: publicProcedure
+    .input(
+      z.object({
+        eventId: z.string(),
+        judgeId: z.string(),
+        eventType: z.enum(["TEST_RACE", "QUALIFICATION", "RACE"]),
+        results: z.array(
           z.object({
             pilotId: z.string(),
-            reason: z.string(),
-            time: z.number(),
+            bestLap: z.number().nullable(),
+            totalTime: z.number().nullable(),
           })
-        )
-        .optional()
-        .default([]),
-    })
-  )
-  .mutation(async ({ ctx, input }) => {
-    const { eventId, judgeId, results, penalties, eventType } = input;
-    const sorted = [...results].sort((a, b) => {
-      if (eventType === "RACE") {
-        const ta = a.totalTime ?? Infinity;
-        const tb = b.totalTime ?? Infinity;
-        return ta - tb;
-      }
+        ),
+        penalties: z
+          .array(
+            z.object({
+              pilotId: z.string(),
+              reason: z.string(),
+              time: z.number(),
+            })
+          )
+          .optional()
+          .default([]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
 
-      const la = a.bestLap ?? Infinity;
-      const lb = b.bestLap ?? Infinity;
-      return la - lb;
-    });
-
-    const resultsData = sorted.map((item, index) => {
-      const pozition = index + 1;
-
-      const points =
-        eventType === "RACE"
-          ? Math.max(25 - (pozition - 1) * 2, 0)
-          : 0;
-
-      return {
-        pilotId: item.pilotId,
-        eventId,
-        pozition,
-        totalTime: item.totalTime ?? 0,
-        bestLap: item.bestLap ?? null,
-        points,
-      };
-    });
-
-    await ctx.db.$transaction(async (tx) => {
-      for (const data of resultsData) {
-        await tx.result.create({ data });
-      }
-
-      if (penalties.length > 0) {
-        for (const p of penalties) {
-          await ctx.db.penalty.create({
-            data: {
-              pilotId: p.pilotId,
-              eventId,
-              judgeId,
-              reason: p.reason,
-              time: p.time,
-            },
-          });
+      const { eventId, judgeId, results, penalties, eventType } = input;
+      const sorted = [...results].sort((a, b) => {
+        if (eventType === "RACE") {
+          const ta = a.totalTime ?? Infinity;
+          const tb = b.totalTime ?? Infinity;
+          return ta - tb;
         }
-      }
-    });
 
-    return { status: "ok" };
+        const la = a.bestLap ?? Infinity;
+        const lb = b.bestLap ?? Infinity;
+        return la - lb;
+      });
+
+      const resultsData = sorted.map((item, index) => {
+        const pozition = index + 1;
+
+        const points =
+          eventType === "RACE"
+            ? Math.max(25 - (pozition - 1) * 2, 0)
+            : 0;
+
+        return {
+          pilotId: item.pilotId,
+          eventId,
+          pozition,
+          totalTime: item.totalTime ?? 0,
+          bestLap: item.bestLap ?? null,
+          points,
+        };
+      });
+
+      await ctx.db.$transaction(async (tx) => {
+        for (const data of resultsData) {
+          await tx.result.create({ data });
+        }
+
+        if (penalties.length > 0) {
+          for (const p of penalties) {
+            await ctx.db.penalty.create({
+              data: {
+                pilotId: p.pilotId,
+                eventId,
+                judgeId,
+                reason: p.reason,
+                time: p.time,
+              },
+            });
+          }
+        }
+      });
+
+      return { status: "ok" };
   }),
 
 
@@ -237,6 +240,7 @@ createFullProtocol: publicProcedure
     })
   )
   .mutation(async ({ ctx, input }) => {
+    if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
     const { eventId, judgeId, results, penalties, eventType } = input;
 
     const sorted = [...results].sort((a, b) => {
@@ -323,6 +327,7 @@ createFullProtocol: publicProcedure
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
       await ctx.db.penalty.deleteMany({
         where: { eventId: input.event_id },
       });
