@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 import { admins, events2024, events2025, events2026, judgeUsers, 
   penalties, 
-  pilots, pilotUsers, results, seasons, weekends2024, weekends2025, 
+  pilots, pilotUsers, results, seasons, users, weekends2024, weekends2025, 
   weekends2026 } from "./data";
 
 
@@ -116,6 +116,21 @@ async function main() {
         },
       },
       include: { judge: true },
+      });
+  }
+    // Добавление админов
+    for (const user of users) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        id: user.id,
+        firstname: user.firstname,
+        surname: user.surname,
+        email: user.email,
+        role: Role.ADMIN,
+        emailVerified: new Date(),
+      },
       });
   }
 

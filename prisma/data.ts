@@ -1,5 +1,23 @@
 import { RaceType, Role } from "@prisma/client";
 
+//Таблица User 
+export const users = [
+    {
+        id: "user1",
+        firstname: "Польх",
+        surname: "Польх",
+        email: "user1@err.com",
+        role: Role.USER,
+    },
+    {
+        id: "user2",
+        firstname: "Польхвв",
+        surname: "Польхвв",
+        email: "user1@example.com",
+        role: Role.USER,
+    },
+]
+
 //Таблица User (админы)
 export const admins = [
     {
