@@ -323,8 +323,8 @@ export const weekends2026 = [
     stage: 1,
     nameTrassa: "MegaRacer",
     city: "Самара",
-    dateStart: new Date("2026-08-29T14:30:00Z"),
-    dateEnd: new Date("2026-08-31T14:30:00Z"),
+    dateStart: new Date("2026-01-09T14:30:00Z"),
+    dateEnd: new Date("2026-01-11T14:30:00Z"),
   },
   {
     id: "weekend-2-2026",
@@ -526,19 +526,19 @@ export const events2026 = [
   {
     id: "event-1-1-2026",
     type: RaceType.TEST_RACE,
-    date: new Date("2026-08-29T14:30:00Z"),
+    date: new Date("2026-01-09T14:30:00Z"),
     weekendId: "weekend-1-2026",
   },
   {
     id: "event-1-2-2026",
     type: RaceType.QUALIFICATION,
-    date: new Date("2026-08-30T14:30:00Z"),
+    date: new Date("2026-01-10T14:30:00Z"),
     weekendId: "weekend-1-2026",
   },
   {
     id: "event-1-3-2026",
     type: RaceType.RACE,
-    date: new Date("2026-08-31T14:30:00Z"),
+    date: new Date("2026-01-11T14:30:00Z"),
     weekendId: "weekend-1-2026",
   },
   {

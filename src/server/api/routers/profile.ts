@@ -34,7 +34,7 @@ export const userProfileRouter = createTRPCRouter({
     })
   )
   .mutation(async ({ ctx, input }) => {
-    if ( await getId() === input.id) throw new Error("Доступ запрещён");
+    if (!( await getId() === input.id)) throw new Error("Доступ запрещён");
     return ctx.db.user.update({
       where: { id: input.id },
       data: {
@@ -71,7 +71,7 @@ export const userProfileRouter = createTRPCRouter({
     })
   )
   .mutation(async ({ ctx, input }) => {
-    if ( await getId() === input.id_user) throw new Error("Доступ запрещён");
+    if (!( await getId() === input.id_user)) throw new Error("Доступ запрещён");
     const { id_user, id_pilot, id_judge } = input;
       await ctx.db.$transaction(async (tx) => {
       if (id_pilot) {

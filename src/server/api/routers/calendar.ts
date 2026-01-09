@@ -53,7 +53,7 @@ export const calendarRouter = createTRPCRouter({
       })
   )
   .mutation(async ({ ctx, input }) => {
-    if ( await isAdmin()) throw new Error("Доступ запрещён");
+    if ( !(await isAdmin())) throw new Error("Доступ запрещён");
     if (input.dateStart === "") throw new Error("Даты начала этапа нет");
     if (input.dateEnd === "") throw new Error("Даты конца этапа нет");
     const weekend = await ctx.db.weekend.create({
@@ -92,7 +92,7 @@ export const calendarRouter = createTRPCRouter({
     ),
   }))
   .mutation(async ({ ctx, input }) => {
-    if ( await isAdmin()) throw new Error("Доступ запрещён");
+    if ( !(await isAdmin())) throw new Error("Доступ запрещён");
     return await ctx.db.weekend.update({
       where: { id: input.id },
       data: {
@@ -115,7 +115,7 @@ export const calendarRouter = createTRPCRouter({
   deleteWeekend: protectedProcedure
   .input(z.object({ weekendId: z.string() }))
   .mutation(async ({ ctx, input }) => {
-    if ( await isAdmin()) throw new Error("Доступ запрещён");
+    if (!(await isAdmin())) throw new Error("Доступ запрещён");
     await ctx.db.weekend.delete({
       where: { id: input.weekendId },
     });
@@ -135,14 +135,14 @@ export const calendarRouter = createTRPCRouter({
   createSeason: protectedProcedure
     .input(z.object({ year: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      if (!(await isAdmin())) throw new Error("Доступ запрещён");
       return ctx.db.season.create({ data: { year: input.year } });
     }),
 
   updateSeason: protectedProcedure
     .input(z.object({ id: z.string(), year: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      if (!(await isAdmin())) throw new Error("Доступ запрещён");
       return ctx.db.season.update({
         where: { id: input.id },
         data: { year: input.year },
@@ -152,7 +152,7 @@ export const calendarRouter = createTRPCRouter({
   deleteSeason: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      if ( await isAdmin()) throw new Error("Доступ запрещён");
+      if (!(await isAdmin())) throw new Error("Доступ запрещён");
       await ctx.db.season.update({
         where: { id: input.id },
         data: {

@@ -8,6 +8,7 @@ export default async function Home() {
   //const session = await auth();
 
   const weekendPCN = await api.mainPageRouter.getWeekendOverview();
+  const currentWeekendPCN = await api.mainPageRouter.getCurrentWeekend();
 
   const weekendPCNData = {
   previous: weekendPCN.previous
@@ -15,6 +16,16 @@ export default async function Home() {
         ...weekendPCN.previous,
         seasonYear: weekendPCN.previous.season.year,
         events: weekendPCN.previous.events.map((e) => ({
+          type: e.type,
+          data: e.data.toISOString(),
+        })),
+      }
+    : undefined,
+  current: currentWeekendPCN
+    ? {
+        ...currentWeekendPCN,
+        seasonYear: currentWeekendPCN.season.year,
+        events: currentWeekendPCN.events.map((e) => ({
           type: e.type,
           data: e.data.toISOString(),
         })),

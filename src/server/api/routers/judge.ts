@@ -155,7 +155,7 @@ export const judgesRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
+      if (!( await (isAdmin() || isJudical()))) throw new Error("Доступ запрещён");
 
       const { eventId, judgeId, results, penalties, eventType } = input;
       const sorted = [...results].sort((a, b) => {
@@ -240,7 +240,7 @@ export const judgesRouter = createTRPCRouter({
     })
   )
   .mutation(async ({ ctx, input }) => {
-    if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
+    if (!( await (isAdmin() || isJudical()))) throw new Error("Доступ запрещён");
     const { eventId, judgeId, results, penalties, eventType } = input;
 
     const sorted = [...results].sort((a, b) => {
@@ -327,7 +327,7 @@ export const judgesRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if ( await (isAdmin() || isJudical())) throw new Error("Доступ запрещён");
+      if (!( await (isAdmin() || isJudical()))) throw new Error("Доступ запрещён");
       await ctx.db.penalty.deleteMany({
         where: { eventId: input.event_id },
       });
