@@ -44,144 +44,202 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+//пользователи системы
 model User {
     id                  String          @id @default(cuid())
     firstname           String?
     surname             String?
-    login               String?
     email               String?         @unique
     emailVerified       DateTime?
     image               String?
+
+    role                Role            @default(USER)
+
     accounts            Account[]
     sessions            Session[]
-    role                Role            @default(USER)
-    
-    //пилот 1 к 1 
-    pilotid            String?        @unique
-    pilot              Pilot?         @relation(fields: [pilotid], references: [id])
-
-    //судья 1 к 1
-    judgeid            String?        @unique
-    judge              Judge?         @relation(fields: [judgeid], references: [id])
-
+    tournaments         Turnir[]        //список турниров которые создал пользователь
 }
-
+//Роли
 enum Role {
-  USER
-  PILOT
-  JUDGE
-  ADMIN
+  ADMIN      // админ - полный доступ ко всему
+  ORGANIZER  // организатор - создание и управление турнирами
+  REFEREE    // судья - ввод и подтверждение результатов
+  USER       // пользователь - просмотр (участник/зритель)
 }
 
-model Pilot {
-  id                    String      @id @default(cuid())
-  birthDate             DateTime
-  license               String?
-  start_number          Int
+// Участник (Основная сущность "игрок" в системе)
+model Participant {
+  id              String      @id @default(cuid())
+  firstname       String
+  surname         String
+  rating          Int                     // Рейтинг игрока (например, для сеяния или ранжирования перед турниром)
 
-  user                  User?
+  tournaments     TurnirParticipant[]     // Список участий в турнире с статистикой
+}
 
-  results               Result[]
-  penalties             Penalty[]   //один пилот может иметь несколько штрафов
+//Участник турнира с сохранением статистики
+model TurnirParticipant {
+  id                  String      @id @default(cuid())
+  points              Int         @default(0)             // Количество очков участника в турнире (считается по правилам турнира)
+  wins                Int         @default(0)             // Количество побед участника на данном турнире
+  defeat              Int         @default(0)             // Количество поражений участника на данном турнире
+  scoreFor            Int         @default(0)             // Количество очков/геймов/голов, забитых участником (для расчёта разницы очков)
+  scoreAgainst        Int         @default(0)             // Количество очков/геймов/голов, пропущенных участником (для расчёта разницы очков)
 
-  seasons     Season[]  @relation("SeasonPilots")
+  participantId       String                              // Внешний ключ на участника (Participant), чтобы знать, кто этот игрок
+  participant         Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  tournamentId        String                              // Внешний ключ на турнир, чтобы знать, к какому турниру относится участник  
+  tournament          Turnir      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  groupId             String?                             // Внешний ключ на группу (Group) — указывает, в какой группе участник находится, null потому что не все сразу имеют группу
+  group               Group?      @relation(fields: [groupId], references: [id])
+
+  //Обратные связи на матчи
+  groupMatchesAsA   GroupMatch[] @relation("PlayerA")
+  groupMatchesAsB   GroupMatch[] @relation("PlayerB")
+
+  bracketMatchesAsA BracketMatch[] @relation("BracketPlayerA")
+  bracketMatchesAsB BracketMatch[] @relation("BracketPlayerB")
+
+  @@unique([tournamentId, participantId])
 }
 
 
-model Judge {
-  id                    String      @id @default(cuid())
 
-  //1 к 1 
-  user                  User?
-  penalties             Penalty[]  //судья может выдать много штрафов
-}
-
-
-model Season {
+// Трнир
+model Turnir {
   id                    String          @id @default(cuid())
-  year                  Int
-  isActive              Boolean         @default(false)
+  nameTurnir            String                                    // Название турнира
+  description           String?                                   // Описание турнира (необязательное поле)
+  stage                 TypeStage       @default(GROUP)           // Текущий этап турнира: групповой, плей-офф или завершённый; по умолчанию — групповой этап
 
-  // 1 к многим
-  weekend               Weekend[]
+  participantsCount     Int                                       // Общее количество участников турнира
+  groupsCount           Int                                       // Количество на групповом этапе
 
-  pilots    Pilot[]  @relation("SeasonPilots")
+  tiebreakType          TiebreakType                              // Правило определения мест при равенстве очков
 
+  createdAt             DateTime        @default(now())           // Дата и время создания турнира
+  updatedAt             DateTime        @updatedAt                // Дата и время последнего изменения турнира
+
+  createdById           String                                    // Внешний ключ: id пользователя, создавшего турнир
+  createdBy             User            @relation(fields: [createdById], references: [id])
+
+  participants          TurnirParticipant[]                       // Список участников, привязанных к турниру (со статистикой)
+  groups                Group[]                                   // Все группы, созданные в рамках турнира
+  brackets              Bracket[]                                 // Все сетки на выбывание, относящиеся к турниру
+}
+enum TypeStage {  //Тип турнира
+  GROUP           //групповой
+  BRACKET         //плей-офф (на выбывание)
+  FINISHED        //завершенный
+}
+enum TiebreakType {  //Правило для определения победителя при равенстве результатов
+  POINTS             //Места определяются ТОЛЬКО по количеству очков
+  HEAD_TO_HEAD       //результат личной встречи
+  SCORE_DIFF         //разница = забитые − пропущенные
 }
 
-model Weekend {
-  id                    String          @id @default(cuid())
-  stage                 Int             
-  nameTrassa            String
-  city                  String
+//Группы на групповом этапе турнира
+model Group {
+  id              String      @id @default(cuid())
+  name            String                        //Название группы
 
-  dateStart             DateTime
-  dateEnd               DateTime
+  tournamentId    String                        //Турнир которому принадлежит группа
+  tournament      Turnir      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
-  seasonId              String
-  season                Season          @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-
-  events                 Event[]
-
-  @@unique([seasonId, stage])
+  participants    TurnirParticipant[]           //Участники группы
+  matches         GroupMatch[]                  // Список матчей, проводимых внутри этой группы Каждая запись GroupMatch хранит конкретную игру между двумя участниками
 }
 
-model Event {
-  id                    String          @id @default(cuid())
-  type                  RaceType
-  data                  DateTime
+// Модель одного матча в рамках группового этапа турнира
+model GroupMatch {
+  id              String               @id @default(cuid())
+  round           Int                    // Номер тура (раунда) в группе, используется для жеребьёвки по турам
+  playerAId       String                 // Идентификатор первого участника матча (TurnirParticipant)
+  playerA         TurnirParticipant    @relation("PlayerA", fields: [playerAId], references: [id])
+  playerBId       String                 // Идентификатор первого участника матча (TurnirParticipant)
+  playerB         TurnirParticipant    @relation("PlayerB", fields: [playerBId], references: [id])
+  status          MatchStatus          @default(SCHEDULED)     // Текущий статус матча: запланирован или завершён
 
-  weekendId             String      
-  weekend               Weekend     @relation(fields: [weekendId], references: [id],onDelete: Cascade)
+  result          GroupMatchResult?     @relation("GroupMatchResult")
 
-  results               Result[]
-  penalties             Penalty[]     //у события могут быть штрафы
+  groupId         String                 // Внешний ключ на группу, в которой проводится матч
+  group           Group                @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+enum MatchStatus {  //Статус матча
+  SCHEDULED         //Запланированный
+  FINISHED          //Завершенный
 }
 
-enum RaceType {
-  TEST_RACE
-  QUALIFICATION
-  RACE
-}
+// Модель результата матча (групповых)
+model GroupMatchResult {
+  id              String              @id @default(cuid())
+  scoreA          Int                // Очки (или голы, сеты) первого игрока
+  scoreB          Int                // Очки второго игрока
+  winnerId        String             // Идентификатор победителя (TurnirParticipant.id)
 
-
-model Result {
-  id                    String      @id @default(cuid())
-  pilotId               String      
-  driver                Pilot       @relation(fields: [pilotId], references: [id],onDelete: Cascade)
-
-  eventId               String      
-  event                 Event       @relation(fields: [eventId], references: [id],onDelete: Cascade)
-
-  pozition              Int         @default(0)
-  totalTime             Int         @default(0)//Время в миллисекундах (из него вычисляем позиции и очки)
-  points                Int         @default(0)
-  bestLap               Float?
+  groupMatchId    String?             @unique
+  groupMatch      GroupMatch?         @relation("GroupMatchResult", fields: [groupMatchId], references: [id])
   
-  @@unique([pilotId, eventId]) // вместо eventId @unique
+  createdAt       DateTime            @default(now())
+}
+
+
+// Модель турнирной сетки (плей-офф этап) 
+model Bracket {
+  id              String        @id @default(cuid())
+  type            BracketType                         // Тип сетки: верхняя, нижняя или утешительная
+  doubleElim      Boolean       @default(false)       // Флаг двойного выбывания (true  → участник выбывает после двух поражений false → одно поражение)
+
+  tournamentId    String                              // Связь с турниром
+  tournament      Turnir        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  matches         BracketMatch[]                      // Список матчей, принадлежащих этой сетке
+}
+enum BracketType {  // Перечисление типов турнирных сеток
+  UPPER             // Перечисление типов турнирных сеток
+  LOWER             // Нижняя сетка (для проигравших, при double elimination)
+  CONSOLATION       // Утешительная сетка (за места, не влияющие на чемпионство)
+}
+
+// Модель одного матча на этапе плей-офф (сетке)
+model BracketMatch {
+  id              String                    @id @default(cuid())
+  round           Int                                   // Раунд сетки (1 — первый круг, 2 — полуфинал, и т.д.)
+  status          MatchStatus               @default(SCHEDULED)    // Статус матча: запланирован или завершён
+
+  playerAId       String                                           // Первый участник матча (TurnirParticipant)
+  playerA         TurnirParticipant         @relation("BracketPlayerA", fields: [playerAId], references: [id])
+  playerBId       String                                          // Второй участник матча (TurnirParticipant)
+  playerB         TurnirParticipant         @relation("BracketPlayerB", fields: [playerBId], references: [id])
+
+  
+  result          BracketMatchResult?       @relation("BracketMatchResult")     
+
+  bracketId       String                                // Связь с сеткой, в которой проводится матч (верхняя, нижняя и т.д.)
+  bracket         Bracket                   @relation(fields: [bracketId], references: [id], onDelete: Cascade)
+}
+
+
+// Модель результата матча (универсальная для групп и сеток)
+model BracketMatchResult {
+  id              String            @id @default(cuid())
+  scoreA          Int                // Очки (или голы, сеты) первого игрока
+  scoreB          Int                // Очки второго игрока
+  winnerId        String             // Идентификатор победителя (TurnirParticipant.id)
+
+  bracketMatchId    String?             @unique
+  bracketMatch      BracketMatch?         @relation("BracketMatchResult", fields: [bracketMatchId], references: [id])
+
+  createdAt       DateTime          @default(now())
 }
 
 
 
 
-model Penalty {
-  id          String   @id @default(cuid())
-  reason      String   // причина штрафа
-  // points      Int?     // штрафные очки (если снимаются)
-  time        Int?     // штраф в секундах (если применяется ко времени)
-  // disqualified Boolean @default(false) // дисквалификация
 
 
-  // связи
-  pilotId     String
-  pilot       Pilot    @relation(fields: [pilotId], references: [id])
-
-  judgeId     String
-  judge       Judge    @relation(fields: [judgeId], references: [id])
-
-  eventId     String
-  event       Event    @relation(fields: [eventId], references: [id],onDelete: Cascade)
-}
 
 
 
