@@ -1,7 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import path from "path";
 import fs from "fs";
-import { admins, bracketMatches, bracketMatchResults, brackets, groupMatches, groupMatchResults, groups, organizer, participants, referee, turnirParticipants, turnirs, users } from "./data";
+import { admins, bracketMatches, bracketMatchResults, brackets, groupMatches, groupMatchResults, groups, organizer, participants, turnirParticipants, turnirs, users } from "./data";
 
 const prisma = new PrismaClient();
 
@@ -58,11 +58,11 @@ async function main() {
   console.log("🌱 Сидирование фиксированных данных...");
 
 // =====  USER =====
-  // Добавление пользователей, админов, организаторов, судей
+  // Добавление пользователей, админов, организаторов
   await User(users)
   await User(admins)
   await User(organizer)
-  await User(referee)
+  // await User(referee)
 
 
 // ===== PARTICIPANT =====

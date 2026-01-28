@@ -1,7 +1,7 @@
 
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { mainPageRouter } from "./routers/mainpage";
-import { calendarRouter } from "./routers/calendar";
+import { homeRouter } from "./routers/home";
+import { tournametsRouter } from "./routers/tournamets";
 import { championshipRouter } from "./routers/championship";
 import { pilotsRouter } from "./routers/pilots";
 import { judgesRouter } from "./routers/judge";
@@ -14,8 +14,9 @@ import { userProfileRouter } from "./routers/profile";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-    mainPageRouter: mainPageRouter,
-    calendarRouter: calendarRouter,
+    homeRouter: homeRouter,
+    tournametsRouter: tournametsRouter,
+    
     championshipRouter: championshipRouter,
     pilotsRouter:pilotsRouter,
     judgesRouter:judgesRouter,

@@ -31,16 +31,6 @@ export const organizer = [
         role: Role.ORGANIZER,
     },
 ]
-//Таблица User (админы)
-export const referee= [
-    {
-        id: "referee1",
-        firstname: "Судья1",
-        surname: "Судьяя1",
-        email: "referee1@err.com",
-        role: Role.REFEREE,
-    },
-]
 
 //====================== PARTICIPANT ==================
 export const participants = [
@@ -62,6 +52,48 @@ export const participants = [
     surname: "Сергеев",
     rating: 1600,
   },
+  {
+    id: "participant4",
+    firstname: "Дмитрий",
+    surname: "Смирнов",
+    rating: 1450,
+  },
+  {
+    id: "participant5",
+    firstname: "Андрей",
+    surname: "Кузнецов",
+    rating: 1580,
+  },
+  {
+    id: "participant6",
+    firstname: "Михаил",
+    surname: "Волков",
+    rating: 1520,
+  },
+  {
+    id: "participant7",
+    firstname: "Никита",
+    surname: "Фёдоров",
+    rating: 1480,
+  },
+  {
+    id: "participant8",
+    firstname: "Евгений",
+    surname: "Морозов",
+    rating: 1620,
+  },
+  {
+    id: "participant9",
+    firstname: "Павел",
+    surname: "Соколов",
+    rating: 1490,
+  },
+  {
+    id: "participant10",
+    firstname: "Владимир",
+    surname: "Орлов",
+    rating: 1570,
+  },
 ]
 
 //================= TURNIR ==================
@@ -76,10 +108,31 @@ export const turnirs = [
     tiebreakType: TiebreakType.POINTS,
     createdById: "organizer1",
   },
+  {
+    id: "turnir2",
+    nameTurnir: "Шахматы",
+    description: "Тестовый турнир по шахматам",
+    stage: TypeStage.BRACKET,
+    participantsCount: 8,
+    groupsCount: 2,
+    tiebreakType: TiebreakType.HEAD_TO_HEAD,
+    createdById: "organizer1",
+  },
+  {
+    id: "turnir3",
+    nameTurnir: "Фехтование",
+    description: "Тестовый турнир по фехтовани.",
+    stage: TypeStage.FINISHED,
+    participantsCount: 10,
+    groupsCount: 3,
+    tiebreakType: TiebreakType.SCORE_DIFF,
+    createdById: "organizer1",
+  },
 ]
 
 //================= TurnirParticipant ==================
 export const turnirParticipants = [
+  //турнир 1
   {
     id: "tp1",
     participantId: "participant1",
@@ -95,14 +148,134 @@ export const turnirParticipants = [
     participantId: "participant3",
     tournamentId: "turnir1",
   },
+  //турнир 2
+  {
+    id: "tp4",
+    participantId: "participant1",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp5",
+    participantId: "participant2",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp6",
+    participantId: "participant3",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp7",
+    participantId: "participant4",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp8",
+    participantId: "participant5",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp9",
+    participantId: "participant6",
+    tournamentId: "turnir2",
+  },
+    {
+    id: "tp10",
+    participantId: "participant7",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "tp11",
+    participantId: "participant8",
+    tournamentId: "turnir2",
+  },
+    //турнир 3
+  {
+    id: "tp12",
+    participantId: "participant1",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp13",
+    participantId: "participant2",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp14",
+    participantId: "participant3",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp15",
+    participantId: "participant4",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp16",
+    participantId: "participant5",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp17",
+    participantId: "participant6",
+    tournamentId: "turnir3",
+  },
+    {
+    id: "tp18",
+    participantId: "participant7",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "tp19",
+    participantId: "participant8",
+    tournamentId: "turnir3",
+  },
+    {
+    id: "tp20",
+    participantId: "participant8",
+    tournamentId: "turnir3",
+  },
+    {
+    id: "tp21",
+    participantId: "participant8",
+    tournamentId: "turnir3",
+  },
 ]
 
 //================= GROUP ==================
 export const groups = [
+  //турнир 1
   {
-    id: "groupA",
+    id: "group1",
     name: "Группа A",
     tournamentId: "turnir1",
+  },
+  //турнир 2,
+  {
+    id: "group2",
+    name: "Группа A",
+    tournamentId: "turnir2",
+  },
+  {
+    id: "group3",
+    name: "Группа B",
+    tournamentId: "turnir2",
+  },
+  //турнир 3
+  {
+    id: "group4",
+    name: "Группа A",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "group5",
+    name: "Группа B",
+    tournamentId: "turnir3",
+  },
+  {
+    id: "group6",
+    name: "Группа C",
+    tournamentId: "turnir3",
   },
 ]
 

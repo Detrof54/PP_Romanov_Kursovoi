@@ -7,8 +7,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { MyApp } from "./_components/main";
 
 export const metadata: Metadata = {
-  title: "Karting sports",
-  description: "Соревнованиями по картингу",
+  title: "MixGameManager",
+  description: "Проведение соревнований по смешенной системе",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
