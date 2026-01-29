@@ -72,35 +72,35 @@ model Participant {
   id              String      @id @default(cuid())
   firstname       String
   surname         String
-  rating          Int                     // Рейтинг игрока (например, для сеяния или ранжирования перед турниром)
+  rating          Int                      // Рейтинг игрока (например, для сеяния или ранжирования перед турниром)
 
   tournaments     TurnirParticipant[]     // Список участий в турнире с статистикой
 }
 
 //Участник турнира с сохранением статистики
 model TurnirParticipant {
-  id                  String      @id @default(cuid())
-  points              Int         @default(0)             // Количество очков участника в турнире (считается по правилам турнира)
-  wins                Int         @default(0)             // Количество побед участника на данном турнире
-  defeat              Int         @default(0)             // Количество поражений участника на данном турнире
-  scoreFor            Int         @default(0)             // Количество очков/геймов/голов, забитых участником (для расчёта разницы очков)
-  scoreAgainst        Int         @default(0)             // Количество очков/геймов/голов, пропущенных участником (для расчёта разницы очков)
+  id                  String          @id @default(cuid())
+  points              Int             @default(0)             // Количество очков участника в турнире (считается по правилам турнира)
+  wins                Int             @default(0)             // Количество побед участника на данном турнире
+  defeat              Int             @default(0)             // Количество поражений участника на данном турнире
+  scoreFor            Int             @default(0)             // Количество очков/геймов/голов, забитых участником (для расчёта разницы очков)
+  scoreAgainst        Int             @default(0)             // Количество очков/геймов/голов, пропущенных участником (для расчёта разницы очков)
 
-  participantId       String                              // Внешний ключ на участника (Participant), чтобы знать, кто этот игрок
-  participant         Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantId       String?                              // Внешний ключ на участника (Participant), чтобы знать, кто этот игрок
+  participant         Participant?    @relation(fields: [participantId], references: [id], onDelete: SetNull)
 
   tournamentId        String                              // Внешний ключ на турнир, чтобы знать, к какому турниру относится участник  
-  tournament          Turnir      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament          Turnir          @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
   groupId             String?                             // Внешний ключ на группу (Group) — указывает, в какой группе участник находится, null потому что не все сразу имеют группу
-  group               Group?      @relation(fields: [groupId], references: [id])
+  group               Group?          @relation(fields: [groupId], references: [id])
 
   //Обратные связи на матчи
-  groupMatchesAsA   GroupMatch[] @relation("PlayerA")
-  groupMatchesAsB   GroupMatch[] @relation("PlayerB")
+  groupMatchesAsA     GroupMatch[]    @relation("PlayerA")
+  groupMatchesAsB     GroupMatch[]    @relation("PlayerB")
 
-  bracketMatchesAsA BracketMatch[] @relation("BracketPlayerA")
-  bracketMatchesAsB BracketMatch[] @relation("BracketPlayerB")
+  bracketMatchesAsA   BracketMatch[]  @relation("BracketPlayerA")
+  bracketMatchesAsB   BracketMatch[]  @relation("BracketPlayerB")
 
   @@unique([tournamentId, participantId])
 }

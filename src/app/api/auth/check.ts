@@ -8,34 +8,12 @@ export async function isAdmin() {
         return false
     return true
 }
-
-export async function isPilot() {
+export async function isOrganizer() {
     const session = await auth();
     if (!session) return false;
-    if (session.user.role !== $Enums.Role.PILOT)
+    if (session.user.role !== $Enums.Role.ORGANIZER)
         return false
     return true
-}
-
-export async function isJudical() {
-    const session = await auth();
-    if (!session) return false;
-    if (session.user.role !== $Enums.Role.JUDGE)
-        return false
-    return true
-}
-
-export async function isUser() {
-    const session = await auth();
-    if (!session) return false;
-    if (session.user.role !== $Enums.Role.USER)
-        return false
-    return true
-}
-
-export async function getiDJudical() {
-    const session = await auth();
-    return session?.user.id
 }
 
 export async function getId() {

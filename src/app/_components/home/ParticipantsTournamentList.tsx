@@ -8,6 +8,8 @@ import Pagination from "~/app/ui/pagination";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ModalParticipant from "./ModalParticipant";
+import { CreateParticipants } from "./CreateParticipants";
+
 
 type ParticipantType = {
   id: string;
@@ -33,6 +35,7 @@ export default function PatricipantTournamentList(){
   const { data: participants, isLoading, error } = api.homeRouter.getParticipants.useQuery();
 
   const [participant, setParticipant] = useState<null | ParticipantType>(null);
+  const [open, setOpen] = useState<boolean>(false);
 
 
   if (isLoading) return <p>Загрузка...</p>;
@@ -54,6 +57,25 @@ export default function PatricipantTournamentList(){
 
   return (
     <div className="flex flex-col items-center gap-8 p-8 bg-gray-900 text-white">
+      {open ? <CreateParticipants onCancel = {() => setOpen(false)}/> : (
+        <button   
+          onClick={() => {setOpen(true)}}
+          className="
+              px-5 py-2.5
+              rounded-xl
+              bg-emerald-500
+              text-white
+              font-medium
+              shadow-md
+              hover:bg-emerald-600
+              hover:shadow-lg
+              active:scale-95
+              transition
+            " 
+          > 
+          Добавить участника 
+        </button>
+      )}
       <h2 className="text-3xl font-bold mb-4 text-center">Участники турниров</h2>
         <SearchInput placeholder="Найти участника..." paramString="query" />
         <ul className="divide-y border rounded-md">

@@ -1,32 +1,11 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { isAdmin, isOrganizer } from "~/app/api/auth/check";
 
 export const homeRouter = createTRPCRouter({
-  // getCurrentWeekend: protectedProcedure.query(async ({ ctx }) => {
-  //   const now = new Date();
 
-  //   const from = new Date(now);
-  //   from.setDate(from.getDate() - 1);
-
-  //   const to = new Date(now);
-  //   to.setDate(to.getDate() + 1);
-
-  //   const weekend = await ctx.db.weekend.findFirst({
-  //     where: {
-  //       dateStart: { lte: to },
-  //       dateEnd: { gte: from },
-  //     },
-  //     include: {
-  //       events: true,
-  //       season: true,
-  //     },
-  //     orderBy: { dateStart: "asc" },
-  //   });
-
-  //   return weekend;
-  // }),
-
-  getParticipants: protectedProcedure.query(async ({ ctx }) => {
+  getParticipants: protectedProcedure
+  .query(async ({ ctx }) => {
     return ctx.db.participant.findMany({
       include: {
         tournaments: {
@@ -42,6 +21,68 @@ export const homeRouter = createTRPCRouter({
     });
   }),
 
+  createParticipant: protectedProcedure
+  .input(
+    z.object({
+      firstname: z.string(),
+      surname: z.string(),
+      rating: z.number().optional(),
+    })
+  ) 
+  .mutation(async ({ ctx, input }) => {
+    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    await ctx.db.participant.create({
+      data: {
+        firstname: input.firstname,
+        surname: input.surname,
+        rating: input.rating ? input.rating : 0
+      },
+    });
+  }),
+
+  deleteParticipant: protectedProcedure
+  .input(
+    z.object({
+      id: z.string(),
+    })
+  ) 
+  .mutation(async ({ ctx, input }) => {
+    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    await ctx.db.participant.delete({
+      where: {
+        id: input.id,
+      }
+    });
+  }),
+
+  updateParticipant: protectedProcedure
+  .input(
+    z.object({
+      id: z.string(),
+      firstname: z.string().optional(),
+      surname: z.string().optional(),
+      rating: z.number().optional(),
+    })
+  ) 
+  .mutation(async ({ ctx, input }) => {
+    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    const data: {
+      firstname?: string;
+      surname?: string;
+      rating?: number;
+    } = {};
+
+    if (input.firstname !== undefined) data.firstname = input.firstname;
+    if (input.surname !== undefined) data.surname = input.surname;
+    if (input.rating !== undefined) data.rating = input.rating;
+
+    await ctx.db.participant.update({
+      where: {
+        id: input.id,
+      },
+      data,
+    });
+  }),
 
 
 });
