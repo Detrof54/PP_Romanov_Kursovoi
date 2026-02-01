@@ -76,12 +76,13 @@ export const homeRouter = createTRPCRouter({
     if (input.surname !== undefined) data.surname = input.surname;
     if (input.rating !== undefined) data.rating = input.rating;
 
-    await ctx.db.participant.update({
+    return await ctx.db.participant.update({
       where: {
         id: input.id,
       },
       data,
     });
+     
   }),
 
 

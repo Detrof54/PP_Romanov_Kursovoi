@@ -232,12 +232,12 @@ export const turnirParticipants = [
   },
     {
     id: "tp20",
-    participantId: "participant8",
+    participantId: "participant9",
     tournamentId: "turnir3",
   },
     {
     id: "tp21",
-    participantId: "participant8",
+    participantId: "participant10",
     tournamentId: "turnir3",
   },
 ]
@@ -288,7 +288,7 @@ export const groupMatches = [
     playerAId: "tp1",
     playerBId: "tp2",
     status: MatchStatus.SCHEDULED,
-    groupId: "groupA",
+    groupId: "group1",
   },
   {
     id: "gm2",
@@ -296,7 +296,7 @@ export const groupMatches = [
     playerAId: "tp2",
     playerBId: "tp3",
     status: MatchStatus.SCHEDULED,
-    groupId: "groupA",
+    groupId: "group1",
   },
 ]
 

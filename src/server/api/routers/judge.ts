@@ -1,6 +1,6 @@
 import { create } from "domain";
 import { z } from "zod";
-import { isAdmin, isJudical } from "~/app/api/auth/check";
+import { isAdmin } from "~/app/api/auth/check";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const judgesRouter = createTRPCRouter({

@@ -61,6 +61,7 @@ export default function PatricipantTournamentList(){
         <button   
           onClick={() => {setOpen(true)}}
           className="
+          ml-auto
               px-5 py-2.5
               rounded-xl
               bg-emerald-500

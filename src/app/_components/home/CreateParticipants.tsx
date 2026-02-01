@@ -10,12 +10,14 @@ export function CreateParticipants ({ onCancel }: Props){
   const [surname, setSurname] = useState("");
   const [rating, setRating] = useState<number | "">("");
 
+  const utils = api.useUtils();
   const createParticipant = api.homeRouter.createParticipant.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.homeRouter.getParticipants.invalidate();
+      onCancel(); 
       setFirstname("");
       setSurname("");
       setRating("");
-      onCancel(); 
     },
   });
 
@@ -30,13 +32,13 @@ export function CreateParticipants ({ onCancel }: Props){
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 max-w-sm">
+    <form onSubmit={onSubmit} className="space-y-4 max-w-sm ">
       <div>
         <label>Имя</label>
         <input
           value={firstname}
           onChange={(e) => setFirstname(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full bg-gray-800"
           required
         />
       </div>
@@ -46,7 +48,7 @@ export function CreateParticipants ({ onCancel }: Props){
         <input
           value={surname}
           onChange={(e) => setSurname(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full bg-gray-800"
           required
         />
       </div>
@@ -59,18 +61,23 @@ export function CreateParticipants ({ onCancel }: Props){
           onChange={(e) =>
             setRating(e.target.value === "" ? "" : Number(e.target.value))
           }
-          className="border p-2 w-full"
+          className="border p-2 w-full bg-gray-800"
         />
       </div>
-
-      <button
-        type="submit"
-        disabled={createParticipant.isPending}
-        className="bg-black text-white px-4 py-2"
-        >
-        {createParticipant.isPending ? "Добавление..." : "Подтвердить"}
-      </button>
-              <button
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          disabled={createParticipant.isPending}
+          className="            
+              px-4 py-2 rounded-lg
+              border border-green-300
+              text-green-600
+              hover:bg-green-100
+              transition"
+          >
+          {createParticipant.isPending ? "Добавление..." : "Подтвердить"}
+        </button>
+        <button
           type="button"
           onClick={onCancel}
           className="
@@ -83,9 +90,10 @@ export function CreateParticipants ({ onCancel }: Props){
         >
           Отмена
         </button>
+      </div>
       {createParticipant.error && (
         <p className="text-red-500">{createParticipant.error.message}</p>
       )}
     </form>
-  );
+  )
 };

@@ -29,15 +29,25 @@ export default function ModalParticipant({
   const [firstname, setFirstname] = useState(participant.firstname);
   const [surname, setSurname] = useState(participant.surname);
   const [rating, setRating] = useState<number | "">(participant.rating);
-
+  
+  const utils = api.useUtils();
   const updateParticipant =
     api.homeRouter.updateParticipant.useMutation({
-      onSuccess: () => setIsEdit(false),
+      onSuccess: async (updated) => {
+        await utils.homeRouter.getParticipants.invalidate();
+        setFirstname(updated.firstname);
+        setSurname(updated.surname);
+        setRating(updated.rating);
+        setIsEdit(false);
+      },
     });
 
   const deleteParticipant =
     api.homeRouter.deleteParticipant.useMutation({
-      onSuccess: onClose,
+      onSuccess: async () => {
+        await utils.homeRouter.getParticipants.invalidate();
+        onClose; 
+      },
     });
 
   const handleUpdate = () => {
@@ -55,25 +65,25 @@ export default function ModalParticipant({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ">
+      <div className="w-full max-w-md rounded-lg bg-gray-800 p-6 shadow-lg ">
         <div className="mb-4 flex items-center justify-between">
           {isEdit ? (
             <div className="flex gap-2">
               <input
                 value={firstname}
                 onChange={(e) => setFirstname(e.target.value)}
-                className="w-32 rounded border px-2 py-1"
+                className="w-32 rounded border px-2 py-1 bg-gray-800"
               />
               <input
                 value={surname}
                 onChange={(e) => setSurname(e.target.value)}
-                className="w-32 rounded border px-2 py-1"
+                className="w-32 rounded border px-2 py-1 bg-gray-800"
               />
             </div>
           ) : (
-            <h2 className="text-lg font-semibold">
-              {participant.firstname} {participant.surname}
+            <h2 className="text-lg font-semibold ">
+              {firstname} {surname}
             </h2>
           )}
 
@@ -84,7 +94,7 @@ export default function ModalParticipant({
 
         <div className="space-y-3 text-sm">
           <div>
-            <span className="font-medium">Рейтинг:</span>{" "}
+            <span className="font-medium ">Рейтинг:</span>{" "}
             {isEdit ? (
               <input
                 type="number"
@@ -94,10 +104,10 @@ export default function ModalParticipant({
                     e.target.value === "" ? "" : Number(e.target.value)
                   )
                 }
-                className="ml-2 w-24 rounded border px-2 py-1"
+                className="ml-2 w-24 rounded border px-2 py-1 bg-gray-800"
               />
             ) : (
-              participant.rating
+              rating
             )}
           </div>
 
@@ -131,7 +141,12 @@ export default function ModalParticipant({
               <>
                 <button
                   onClick={() => setIsEdit(false)}
-                  className="rounded-md bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
+                  className="            
+                    px-4 py-2 rounded-lg
+                    border border-red-300
+                    text-red-600
+                    hover:bg-red-100
+                    transition"
                 >
                   Отмена
                 </button>
