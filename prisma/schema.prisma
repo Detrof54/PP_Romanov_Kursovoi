@@ -215,7 +215,7 @@ model BracketMatch {
   playerB         TurnirParticipant         @relation("BracketPlayerB", fields: [playerBId], references: [id])
 
   
-  result          BracketMatchResult?       @relation("BracketMatchResult")     
+  result          BracketMatchResult[]            
 
   bracketId       String                                // Связь с сеткой, в которой проводится матч (верхняя, нижняя и т.д.)
   bracket         Bracket                   @relation(fields: [bracketId], references: [id], onDelete: Cascade)
@@ -229,8 +229,8 @@ model BracketMatchResult {
   scoreB          Int                // Очки второго игрока
   winnerId        String             // Идентификатор победителя (TurnirParticipant.id)
 
-  bracketMatchId    String?             @unique
-  bracketMatch      BracketMatch?         @relation("BracketMatchResult", fields: [bracketMatchId], references: [id])
+  bracketMatchId    String             
+  bracketMatch      BracketMatch    @relation(fields: [bracketMatchId], references: [id])
 
   createdAt       DateTime          @default(now())
 }

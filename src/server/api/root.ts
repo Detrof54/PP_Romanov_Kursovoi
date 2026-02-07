@@ -2,9 +2,6 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { homeRouter } from "./routers/home";
 import { tournametsRouter } from "./routers/tournamets";
-import { championshipRouter } from "./routers/championship";
-import { pilotsRouter } from "./routers/pilots";
-import { judgesRouter } from "./routers/judge";
 import { userProfileRouter } from "./routers/profile";
 
 
@@ -16,10 +13,6 @@ import { userProfileRouter } from "./routers/profile";
 export const appRouter = createTRPCRouter({
     homeRouter: homeRouter,
     tournametsRouter: tournametsRouter,
-    
-    championshipRouter: championshipRouter,
-    pilotsRouter:pilotsRouter,
-    judgesRouter:judgesRouter,
     userProfileRouter:userProfileRouter,
 });
 

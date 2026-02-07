@@ -55,15 +55,39 @@ export const tournametsRouter = createTRPCRouter({
               }
             },
             matches: {
-              include:{
+              include: {
                 result: true,
-              }
+                playerA: {
+                  include: {
+                    participant: true,
+                  },
+                },
+                playerB: {
+                  include: {
+                    participant: true,
+                  },
+                },
+              },
             },
           }
         },
         brackets: {
           include:{
-            matches: true,
+            matches: {
+              include: {
+                result: true,
+                playerA: {
+                  include: {
+                    participant: true,
+                  },
+                },
+                playerB: {
+                  include: {
+                    participant: true,
+                  },
+                },
+              },
+            },
           }
         },
       }

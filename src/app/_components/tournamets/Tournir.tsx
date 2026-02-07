@@ -4,6 +4,9 @@ import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
 import { TiebreakType, TypeStage, type Role } from "@prisma/client";
+import Group from "./Group";
+import Bracket from "./Bracket";
+import TableRezultTournir from "./TableRezultTournir";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)
@@ -35,7 +38,8 @@ export default function Tournir({role, idTournir}: {role: Role | undefined, idTo
   if (error) return <div>Error: {(error as any)?.message || "Ошибка"}</div>;
   if (!tournir) return <div>Нет информации о турнире</div>;
 
-  const groups = tournir?.groups.map ?? [];
+  const groups = tournir?.groups ?? [];
+  const brackets = tournir?.brackets ?? [];
   
   return (
     <div className="flex flex-col items-center gap-8 p-8 bg-gray-900 text-white">
@@ -55,7 +59,12 @@ export default function Tournir({role, idTournir}: {role: Role | undefined, idTo
               <span className="font-medium text-gray-300">Тай-брейк:</span>{" "}{PerevodTiebreakType(tournir.tiebreakType)}
             </p>
       </div>
-
+      <h2>Групповой этап</h2>
+      <Group groups={groups} />
+      <h2>Этап на выбывание</h2>
+      <Bracket brackets={brackets} />
+      <h2>Общие рещультаты турнира</h2>
+      <TableRezultTournir tournir={tournir} />
     </div>
   );
 }
