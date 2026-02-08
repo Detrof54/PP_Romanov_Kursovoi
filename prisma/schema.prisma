@@ -177,7 +177,7 @@ model GroupMatchResult {
   id              String              @id @default(cuid())
   scoreA          Int                // Очки (или голы, сеты) первого игрока
   scoreB          Int                // Очки второго игрока
-  winnerId        String             // Идентификатор победителя (TurnirParticipant.id)
+  winnerId        String?             // Идентификатор победителя (TurnirParticipant.id)
 
   groupMatchId    String?             @unique
   groupMatch      GroupMatch?         @relation("GroupMatchResult", fields: [groupMatchId], references: [id])
@@ -224,15 +224,15 @@ model BracketMatch {
 
 // Модель результата матча (универсальная для групп и сеток)
 model BracketMatchResult {
-  id              String            @id @default(cuid())
-  scoreA          Int                // Очки (или голы, сеты) первого игрока
-  scoreB          Int                // Очки второго игрока
-  winnerId        String             // Идентификатор победителя (TurnirParticipant.id)
+  id                String            @id @default(cuid())
+  scoreA            Int                // Очки (или голы, сеты) первого игрока
+  scoreB            Int                // Очки второго игрока
+  winnerId          String?             // Идентификатор победителя (TurnirParticipant.id)
 
   bracketMatchId    String             
   bracketMatch      BracketMatch    @relation(fields: [bracketMatchId], references: [id])
 
-  createdAt       DateTime          @default(now())
+  createdAt         DateTime          @default(now())
 }
 
 
