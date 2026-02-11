@@ -162,8 +162,8 @@ function ExtraMatchesTable({ matches }: { matches: BracketMatch[] }) {
       <table className="w-full text-sm text-gray-300">
         <thead>
           <tr className="border-b border-gray-700 text-gray-400">
-            <th className="py-2 text-left">Участник A</th>
-            <th className="py-2 text-left">Участник B</th>
+            <th className="py-2 text-left">Участник 1</th>
+            <th className="py-2 text-left">Участник 2</th>
             <th className="py-2 text-center">Результаты</th>
             <th className="py-2 text-center">Статус</th>
           </tr>

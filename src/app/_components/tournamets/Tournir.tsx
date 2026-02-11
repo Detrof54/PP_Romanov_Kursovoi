@@ -42,28 +42,27 @@ export default function Tournir({role, idTournir}: {role: Role | undefined, idTo
   const brackets = tournir?.brackets ?? [];
   
   return (
-    <div className="flex flex-col items-center gap-8 p-8 bg-gray-900 text-white">
-      <h2 className="text-3xl font-bold mb-4 text-center">Турнир</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-semibold"> Название турнира:  {tournir.nameTurnir || "Без названия"} </h3>
-              <h4 className="text-xl font-semibold"> Описание:  {tournir.description || "Без описания"}</h4>
-            </div>
-            <p className="text-gray-400 text-sm mb-3">
-              <span className="font-medium text-gray-300">Текущий этап турнира:</span>{" "}{Perevod(tournir.stage)}
-              <span className="font-medium text-gray-300">Всего участников турнира:</span>{" "}{tournir.participantsCount}
-              <span className="font-medium text-gray-300">Дата создания:</span>{" "}{new Date(tournir.createdAt).toLocaleDateString("ru-RU")}
-              <span className="font-medium text-gray-300">Дата обновления:</span>{" "}{new Date(tournir.updatedAt).toLocaleDateString("ru-RU")}
-              <span className="font-medium text-gray-300">Организатор:</span>{" "}{`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`}
-              <span className="font-medium text-gray-300">Количество групп:</span>{" "}{tournir.groupsCount}
-              <span className="font-medium text-gray-300">Тай-брейк:</span>{" "}{PerevodTiebreakType(tournir.tiebreakType)}
-            </p>
+    <div className="flex flex-col gap-8 p-8 bg-gray-900 text-white">
+      <h2 className="text-3xl font-bold mb-4 text-center">{tournir.nameTurnir || "Турнир"}</h2>
+      <div className="flex flex-col gap-2 mb-2">
+        <h4 className="text-2xl text-gray-300"> Описание:  {tournir.description || "Без описания"}</h4>
       </div>
-      <h2>Групповой этап</h2>
+      <div className="flex flex-col gap-2 mb-2">
+            <ul className="text-lg text-gray-400 space-y-1 mb-3">
+              <li><b className="text-gray-300">Организатор:</b> {`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`}</li>
+              <li><b className="text-gray-300">Текущий этап турнира:</b> {Perevod(tournir.stage)}</li>
+              <li><b className="text-gray-300">Всего участников:</b> {tournir.participantsCount}</li>
+              <li><b className="text-gray-300">Количество групп:</b> {tournir.groupsCount}</li>
+              <li><b className="text-gray-300">Тай-брейк:</b> {PerevodTiebreakType(tournir.tiebreakType)}</li>
+              <li><b className="text-gray-300">Дата создания:</b> {new Date(tournir.createdAt).toLocaleDateString("ru-RU")}</li>
+              <li><b className="text-gray-300">Дата обновления:</b> {new Date(tournir.updatedAt).toLocaleDateString("ru-RU")}</li>
+            </ul>
+      </div>
+      <h2 className="text-2xl font-bold mb-2 text-center">Групповой этап</h2>
       <Group groups={groups} />
-      <h2>Этап на выбывание</h2>
+      <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>
       <Bracket brackets={brackets} />
-      <h2>Общие рещультаты турнира</h2>
+      <h2 className="text-2xl font-bold mt-6 text-center">Общие результаты турнира</h2>
       <TableRezultTournir tournir={tournir} />
     </div>
   );

@@ -351,14 +351,6 @@ export const groupMatches = [
     status: MatchStatus.FINISHED,
     groupId: "group1",
   },
-  {
-    id: "gm16",
-    round: 0,
-    playerAId: "tp5",
-    playerBId: "tp7",
-    status: MatchStatus.FINISHED,
-    groupId: "group1",
-  },
 ]
 
 
@@ -381,9 +373,9 @@ export const groupMatchResults = [
   },
   {
     id: "gmr3",
-    scoreA: 2,
+    scoreA: 5,
     scoreB: 4,
-    winnerId: "tp6",
+    winnerId: "tp5",
     groupMatchId: "gm3",
   },
   {
@@ -457,7 +449,7 @@ export const groupMatchResults = [
   {
     id: "gmr13",
     scoreA: 4,
-    scoreB: 1,
+    scoreB: 2,
     winnerId: "tp1",
     groupMatchId: "gm13",
   },
@@ -471,16 +463,9 @@ export const groupMatchResults = [
   {
     id: "gmr15",
     scoreA: 4,
-    scoreB: 1,
+    scoreB: 3,
     winnerId: "tp1",
     groupMatchId: "gm15",
-  },
-  {
-    id: "gmr16",
-    scoreA: 4,
-    scoreB: 1,
-    winnerId: "tp5",
-    groupMatchId: "gm16",
   },
 ]
 
@@ -546,10 +531,20 @@ export const bracketMatches = [
   //для утешительной
   {
     id: "bm5",
-    round: 2,
+    round: 1,
     playerAId: "tp3",
     playerBId: "tp8",
     bracketId: "bracket3",
+    status: MatchStatus.FINISHED,
+  },
+  //Доп матчи
+  //матч за 5 (6) место
+  {
+    id: "bm6",
+    round: 0,
+    playerAId: "tp6",
+    playerBId: "tp4",
+    bracketId: "bracket2",
     status: MatchStatus.FINISHED,
   },
 ]
@@ -600,5 +595,13 @@ export const bracketMatchResults = [
     scoreB: 5,
     winnerId: "tp8",
     bracketMatchId: "bm5",
+  },
+  //Доп матчи
+  {
+    id: "bmr7",
+    scoreA: 2,
+    scoreB: 1,
+    winnerId: "tp6",
+    bracketMatchId: "bm6",
   },
 ]

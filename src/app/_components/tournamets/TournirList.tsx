@@ -3,7 +3,7 @@
 import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
-import { TypeStage, type Role } from "@prisma/client";
+import { Role, TypeStage } from "@prisma/client";
 import Link from "next/link";
 
 
@@ -34,7 +34,7 @@ export default function TournirList({role}: {role: Role | undefined}){
             <div className="border border-gray-700 rounded-xl p-5 bg-gray-800 hover:bg-gray-700 transition cursor-pointer">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-xl font-semibold"> {tournir.nameTurnir || "Без названия"}</h3>
-                {(role === "ADMIN" || role) && (
+                {(role === Role.ADMIN || role === Role.ORGANIZER) && (
                   <div className="flex gap-2">
                     <button
                       onClick={(e) => {
@@ -60,8 +60,7 @@ export default function TournirList({role}: {role: Role | undefined}){
                   </div>
                 )}
               </div>
-
-              <p className="text-gray-400 text-sm space-y-1">
+              <div className="text-gray-400 text-sm space-y-1">
                 <div>
                   <span className="font-medium text-gray-300">
                     Текущий этап:</span>{" "}{Perevod(tournir.stage)}
@@ -81,7 +80,7 @@ export default function TournirList({role}: {role: Role | undefined}){
                   <span className="font-medium text-gray-300">
                     Организатор:</span>{" "}{`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`}
                 </div>
-              </p>
+              </div>
             </div>
           </Link>
         ))}

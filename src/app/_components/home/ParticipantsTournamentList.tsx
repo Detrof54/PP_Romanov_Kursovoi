@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ModalParticipant from "./ModalParticipant";
 import { CreateParticipants } from "./CreateParticipants";
+import { Role } from "@prisma/client";
 
 
 type ParticipantType = {
@@ -25,7 +26,7 @@ type ParticipantType = {
 };
 
 
-export default function PatricipantTournamentList(){
+export default function PatricipantTournamentList({role}:{role:Role|undefined}){
 
   const searchParams = useSearchParams();
   const query = searchParams.get("query")?.toLowerCase() || "";
@@ -57,7 +58,7 @@ export default function PatricipantTournamentList(){
 
   return (
     <div className="flex flex-col items-center gap-8 p-8 bg-gray-900 text-white">
-      {open ? <CreateParticipants onCancel = {() => setOpen(false)}/> : (
+      {(role === Role.ADMIN || role === Role.ORGANIZER) && (open ? <CreateParticipants onCancel = {() => setOpen(false)}/> : (
         <button   
           onClick={() => {setOpen(true)}}
           className="
@@ -76,7 +77,7 @@ export default function PatricipantTournamentList(){
           > 
           Добавить участника 
         </button>
-      )}
+      ))}
       <h2 className="text-3xl font-bold mb-4 text-center">Участники турниров</h2>
         <SearchInput placeholder="Найти участника..." paramString="query" />
         <ul className="divide-y border rounded-md">
@@ -111,6 +112,7 @@ export default function PatricipantTournamentList(){
         <ModalParticipant
           participant ={participant}
           onClose={() => setParticipant(null)}
+          role = {role}
         />
       )}
     </div>

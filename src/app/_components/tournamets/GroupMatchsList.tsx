@@ -47,7 +47,7 @@ export default function GroupMatchList({ groups }: {groups: Group[]}){
                     return (
                     <div key={round} className="mb-8">
                         <h3 className="mb-4 text-lg font-medium">
-                        Тур {round}
+                            {round === "0" ?"Дополнительные матчи": `Тур ${round}`}
                         </h3>
 
                         <ul className="space-y-2">

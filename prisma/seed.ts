@@ -98,18 +98,6 @@ async function main() {
     });
   }
 
-// ============== TurnirParticipant =================
-  for (const tp of turnirParticipants) {
-    await prisma.turnirParticipant.upsert({
-      where: { id: tp.id },
-      update: {},
-      create: {
-        id: tp.id,
-        participantId: tp.participantId,
-        tournamentId: tp.tournamentId,
-      },
-    });
-  }
 
 // ============== GROUP =================
   for (const group of groups) {
@@ -123,6 +111,20 @@ async function main() {
       },
     });
   }
+
+// ============== TurnirParticipant =================
+  for (const tp of turnirParticipants) {
+    await prisma.turnirParticipant.upsert({
+      where: { id: tp.id },
+      update: {},
+      create: {
+        id: tp.id,
+        participantId: tp.participantId,
+        tournamentId: tp.tournamentId,
+        groupId: tp.groupId,
+      },
+    });
+  }  
 
 // ============== groupMatches =================
   for (const gm of groupMatches) {

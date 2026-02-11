@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { api } from "~/trpc/react";
+import { Role } from "@prisma/client";
 
 type ParticipantModalProps = {
   participant: {
@@ -18,11 +19,13 @@ type ParticipantModalProps = {
     }[];
   };
   onClose: () => void;
+  role: Role | undefined;
 };
 
 export default function ModalParticipant({
   participant,
   onClose,
+  role,
 }: ParticipantModalProps) {
   const [isEdit, setIsEdit] = useState(false);
 
@@ -128,13 +131,13 @@ export default function ModalParticipant({
         </div>
 
         <div className="mt-6 flex justify-between">
-          <button
+          {(role === Role.ADMIN || role === Role.ORGANIZER) && (<button
             onClick={handleDelete}
             disabled={deleteParticipant.isPending}
             className="rounded-md bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600 disabled:opacity-50"
           >
             Удалить
-          </button>
+          </button>)}
 
           <div className="flex gap-2">
             {isEdit ? (
@@ -159,12 +162,12 @@ export default function ModalParticipant({
                 </button>
               </>
             ) : (
-              <button
+              (role === Role.ADMIN || role === Role.ORGANIZER) && (<button
                 onClick={() => setIsEdit(true)}
                 className="rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
               >
                 Редактировать
-              </button>
+              </button>)
             )}
           </div>
         </div>
