@@ -10,6 +10,8 @@ import TableRezultTournir from "./TableRezultTournir";
 import { useState } from "react";
 import CreateTournirParticipants from "./CreateTournirParticipants";
 import UpdateTournir from "./UpdateTournir";
+import FormationGroup from "./FormationGroup";
+import CreateMatchsGrops from "./CreateMatchsGrops";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)
@@ -122,9 +124,13 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
         
 
       <h2 className="text-2xl font-bold mb-2 text-center">Групповой этап</h2>
+      <FormationGroup idTournir={idTournir} participants={tournir.participants} groupsCount={tournir.groupsCount} groupsAlreadyCreated={groups.length > 0} onCreated={refetch} />
       <Group groups={groups} />
+      <CreateMatchsGrops idTournir={idTournir} groups={tournir.groups} onCreated={refetch}/>
+
       <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>
       <Bracket brackets={brackets} />
+      
       <h2 className="text-2xl font-bold mt-6 text-center">Общие результаты турнира</h2>
       <TableRezultTournir tournir={tournir} />
     </div>

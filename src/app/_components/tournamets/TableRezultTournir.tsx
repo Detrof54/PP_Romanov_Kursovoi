@@ -63,8 +63,10 @@ export default function TableRezultTournir({
     const final = finished.find(m => m.round === maxRound);
 
     if (final && final.result.length > 0) {
-      const last = final.result.at(-1)!;
+    const last = final.result.at(-1)!;
 
+    // Если победитель известен
+    if (last.winnerId) {
       if (!places.has(last.winnerId)) {
         places.set(last.winnerId, currentPlace++);
       }
@@ -78,12 +80,14 @@ export default function TableRezultTournir({
         places.set(loser, currentPlace++);
       }
     }
+  }
 
-    const thirdPlaceMatch = finished.find(m => m.round === 0);
+  const thirdPlaceMatch = finished.find(m => m.round === 0);
 
-    if (thirdPlaceMatch && thirdPlaceMatch.result.length > 0) {
-      const r = thirdPlaceMatch.result.at(-1)!;
+  if (thirdPlaceMatch && thirdPlaceMatch.result.length > 0) {
+    const r = thirdPlaceMatch.result.at(-1)!;
 
+    if (r.winnerId) {
       if (!places.has(r.winnerId)) {
         places.set(r.winnerId, currentPlace++);
       }
@@ -97,6 +101,7 @@ export default function TableRezultTournir({
         places.set(loser, currentPlace++);
       }
     }
+  }
 
     const unresolved = tournir.participants.filter(
       p =>

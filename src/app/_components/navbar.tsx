@@ -10,9 +10,6 @@ export async function Navbar({ session }: { session: Session }) {
       <Link href="/tournaments" className="btn bg-gray-900 text-white mr-2">
         Турниры
       </Link>
-      <Link href="/organizers" className="btn bg-gray-900 text-white mr-2">
-        Организаторам
-      </Link>
       <Link href={`/profile/${session.user.id}`} className="btn bg-gray-900 text-white mr-2">
         Профиль
       </Link>

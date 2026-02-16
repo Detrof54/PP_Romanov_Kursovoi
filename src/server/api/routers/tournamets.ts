@@ -5,7 +5,7 @@ import { isAdmin, isOrganizer, isOrganizerOwner } from "~/app/api/auth/check";
 import { TypeStage } from "@prisma/client";
 
 export const tournametsRouter = createTRPCRouter({
-  //Получения списка турниров
+//ПОЛУЧЕНИЕ СПИСКА ТУРНИРОВ
   getTurnirs: protectedProcedure
   .query(async ({ ctx }) => {
     return ctx.db.turnir.findMany({
@@ -26,7 +26,7 @@ export const tournametsRouter = createTRPCRouter({
     });
   }),
 
-  //получение одного турнира выбранного
+//ПОЛУЧЕНИЕ ТУРНИРА
   getTurnir: protectedProcedure
   .input(z.object({
     idTournir: z.string(),
@@ -98,7 +98,7 @@ export const tournametsRouter = createTRPCRouter({
     });
   }),
 
-  //удаление турнира
+//УДАЛЕНИЕ ТУРНИРА
   deleteTournament: protectedProcedure
   .input(z.object({ id: z.string() }))
   .mutation(async ({ ctx, input }) => {
@@ -115,7 +115,7 @@ export const tournametsRouter = createTRPCRouter({
     return { success: true };
   }),
 
-
+//СОЗДАНИЕ ТУРНИРА
   createTournament: protectedProcedure
   .input(
     z.object({
@@ -143,13 +143,13 @@ export const tournametsRouter = createTRPCRouter({
     });
   }),
 
-  //получение участников
+//ПОЛУЧЕНИЕ СПИСКА УЧАСТНИКОВ
   getParticipants: protectedProcedure
   .query(async ({ ctx }) => {
     return ctx.db.participant.findMany({});
   }),
 
-  //добавление участников турнира
+//ДОБАВЛЕНИЕ УЧАСТНИКОВ В ТУРНИР
   createTurnirParticipant: protectedProcedure
     .input(
       z.object({
@@ -239,7 +239,7 @@ export const tournametsRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  //обновление турнира
+//ОБНОВЛЕНИЕ ТУРНИРА
   updateTournir: protectedProcedure
   .input(
     z.object({
@@ -299,5 +299,196 @@ export const tournametsRouter = createTRPCRouter({
 
     return { success: true };
   }),
+
+
+//СОЗДАНИЕ ГРУПП
+  createGroups: protectedProcedure
+  .input(
+    z.object({
+      idTournir: z.string(),
+      groups: z.array(
+        z.object({
+          name: z.string(),
+          participantIds: z.array(z.string()),
+        })
+      ),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    const { idTournir, groups } = input;
+
+    const tournir = await ctx.db.turnir.findUnique({
+      where: { id: idTournir },
+      include: { groups: true },
+    });
+
+    if (!tournir) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Турнир не найден",
+      });
+    }
+
+    if (tournir.groups.length > 0) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Группы уже созданы",
+      });
+    }
+
+    await ctx.db.$transaction(async (tx) => {
+      for (const group of groups) {
+        // 1️⃣ создаем группу
+        const createdGroup = await tx.group.create({
+          data: {
+            name: group.name,
+            tournamentId: idTournir,
+          },
+        });
+
+        // 2️⃣ привязываем участников к группе
+        await tx.turnirParticipant.updateMany({
+          where: {
+            id: { in: group.participantIds },
+          },
+          data: {
+            groupId: createdGroup.id,
+          },
+        });
+      }
+    });
+    return { success: true };
+  }),
+
+
+createGroupMatches: protectedProcedure
+  .input(
+    z.object({
+      idTournir: z.string(),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    const { idTournir } = input;
+
+    const tournir = await ctx.db.turnir.findUnique({
+      where: { id: idTournir },
+      include: {
+        groups: {
+          include: {
+            participants: true,
+            matches: true,
+          },
+        },
+      },
+    });
+
+    if (!tournir) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Турнир не найден",
+      });
+    }
+
+    if (tournir.groups.length === 0) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Группы не созданы",
+      });
+    }
+
+    // 🚫 Проверка на повторную генерацию
+    const matchesExist = tournir.groups.some(
+      (g) => g.matches.length > 0
+    );
+
+    if (matchesExist) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Матчи уже созданы",
+      });
+    }
+
+    await ctx.db.$transaction(async (tx) => {
+      for (const group of tournir.groups) {
+        const players = group.participants;
+
+        if (players.length < 2) continue;
+
+        // ===============================
+        // 1️⃣ Генерируем все пары
+        // ===============================
+
+        const pairs: {
+          a: typeof players[number];
+          b: typeof players[number];
+        }[] = [];
+
+        for (let i = 0; i < players.length; i++) {
+          for (let j = i + 1; j < players.length; j++) {
+            const playerA = players[i];
+            const playerB = players[j];
+
+            if (!playerA || !playerB) continue;
+
+            pairs.push({
+              a: playerA,
+              b: playerB,
+            });
+          }
+        }
+
+        // ===============================
+        // 2️⃣ Распределяем по раундам
+        // ===============================
+
+        let remainingPairs = pairs;
+
+        const rounds: typeof pairs[] = [];
+
+        while (remainingPairs.length > 0) {
+          const round: typeof pairs = [];
+          const usedPlayers = new Set<string>();
+          const nextRemaining: typeof pairs = [];
+
+          for (const match of remainingPairs) {
+            if (
+              !usedPlayers.has(match.a.id) &&
+              !usedPlayers.has(match.b.id)
+            ) {
+              round.push(match);
+              usedPlayers.add(match.a.id);
+              usedPlayers.add(match.b.id);
+            } else {
+              nextRemaining.push(match);
+            }
+          }
+
+          rounds.push(round);
+          remainingPairs = nextRemaining;
+        }
+
+        // ===============================
+        // 3️⃣ Сохраняем в БД
+        // ===============================
+
+        for (const [roundIndex, roundMatches] of rounds.entries()) {
+          for (const match of roundMatches) {
+            await tx.groupMatch.create({
+              data: {
+                round: roundIndex + 1,
+                playerAId: match.a.id,
+                playerBId: match.b.id,
+                groupId: group.id,
+              },
+            });
+          }
+        }
+      }
+    });
+
+    return { success: true };
+  }),
+
+
 
 });

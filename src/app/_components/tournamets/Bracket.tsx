@@ -27,7 +27,7 @@ export interface BracketpMatchResult {
   id: string;
   scoreA: number;
   scoreB: number;
-  winnerId: string;
+  winnerId: string | null;
   bracketMatchId: string | null;
   createdAt: Date;
 }
@@ -57,6 +57,8 @@ const BRACKET_TITLES: Record<BracketType, string> = {
 };
 
 export default function Bracket({ brackets }: { brackets: Bracket[] }) {
+  if (brackets.length === 0) return <h3 className="text-center text-gray-400">Сетки еще не сформированы</h3>;
+
   return (
     <div className="space-y-12">
       {brackets.map((bracket) => {

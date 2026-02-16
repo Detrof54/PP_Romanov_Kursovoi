@@ -28,6 +28,7 @@ export default function GroupMatchList({ groups }: {groups: Group[]}){
                 <h2 className="mb-6 text-xl font-semibold">
                 Группа {group.name}
                 </h2>
+                {group.matches.length === 0 && <p className="text-center text-gray-400"> Матчи еще не сформированы </p>}
 
                 {Object.entries(rounds)
                 .sort(([a], [b]) => Number(a) - Number(b))
