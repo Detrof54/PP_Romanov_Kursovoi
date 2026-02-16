@@ -5,6 +5,9 @@ import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Role, TypeStage } from "@prisma/client";
 import Link from "next/link";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import CreateNewTournir from "./CreateNewTournir";
 
 
 export function Perevod(type: TypeStage){
@@ -18,8 +21,16 @@ export function Perevod(type: TypeStage){
     return "-"
 }
 
-export default function TournirList({role}: {role: Role | undefined}){
+export default function TournirList({role, idUser}: {role: Role | undefined, idUser: string | undefined}){
+  const [showModal, setShowModal] = useState(false);
+
+  const utils = api.useUtils();
   const { data: tournirs, isLoading, error, refetch } = api.tournametsRouter.getTurnirs.useQuery();
+  const deleteMutation = api.tournametsRouter.deleteTournament.useMutation({
+    onSuccess: async () => {
+      await utils.tournametsRouter.getTurnirs.invalidate();
+    },
+  });
   if (isLoading) return <div>Загрузка...</div>;
   if (error) return <div>Error: {(error as any)?.message || "Ошибка"}</div>;
   if (!tournirs) return <div>Нет турниров</div>;
@@ -34,23 +45,15 @@ export default function TournirList({role}: {role: Role | undefined}){
             <div className="border border-gray-700 rounded-xl p-5 bg-gray-800 hover:bg-gray-700 transition cursor-pointer">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-xl font-semibold"> {tournir.nameTurnir || "Без названия"}</h3>
-                {(role === Role.ADMIN || role === Role.ORGANIZER) && (
+                {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser===tournir.createdBy.id)) && (
                   <div className="flex gap-2">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                      }}
-                      className="text-blue-400 hover:text-blue-300"
-                      title="Редактировать"
-                    >
-                      ✏️
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                        if (!confirm("Вы уверены, что хотите удалить турнир?"))
+                          return;
+                        deleteMutation.mutate({ id: tournir.id });
                       }}
                       className="text-red-500 hover:text-red-400"
                       title="Удалить"
@@ -78,13 +81,30 @@ export default function TournirList({role}: {role: Role | undefined}){
 
                 <div>
                   <span className="font-medium text-gray-300">
-                    Организатор:</span>{" "}{`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`}
+                    Организатор:</span>{" "}{(tournir.createdBy.surname && tournir.createdBy.firstname) ?`${tournir.createdBy.surname} ${tournir.createdBy.firstname}` : "Без имени"}
                 </div>
               </div>
             </div>
           </Link>
         ))}
+        {(role === Role.ADMIN || role === Role.ORGANIZER) && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center border-2 border-dashed border-gray-600 rounded-xl p-5 bg-gray-800 hover:border-white transition"
+          >
+            <Plus className="w-10 h-10 text-gray-400" />
+          </button>
+        )}
       </div>
+      {showModal && (
+        <CreateNewTournir
+          onClose={() => setShowModal(false)}
+          onCreated={async () => {
+            await refetch();
+            setShowModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

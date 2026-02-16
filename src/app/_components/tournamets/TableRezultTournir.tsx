@@ -43,7 +43,7 @@ export default function TableRezultTournir({
   tournir: Tournir;
 }) {
   if (tournir.stage !== TypeStage.FINISHED) {
-    return <h3 className="text-gray-400">Турнир ещё не завершён</h3>;
+    return <h3 className="text-center text-gray-400">Турнир ещё не завершён</h3>;
   }
 
   const places: PlaceMap = new Map();

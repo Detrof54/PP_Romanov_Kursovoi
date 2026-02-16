@@ -54,8 +54,8 @@ export interface Group {
 export default function Group({ groups }: {groups: Group[]}){
     return (
       <div>
-        {groups.length!==0 ? <GroupTables groups={groups}/>: <h3 className="text-1xl  mb-4 text-center">Групп нет</h3> }
-        {groups.length!==0 ? <GroupMatchList groups={groups}/> : <h3 className="text-1xl  mb-4 text-center">Матчей нет</h3> }
+        {groups.length!==0 ? <GroupTables groups={groups}/>: <h3 className="text-1xl  mb-4 text-center text-gray-400">Групп нет</h3> }
+        {groups.length!==0 ? <GroupMatchList groups={groups}/> : <h3 className="text-1xl  mb-4 text-center text-gray-400">Матчей нет</h3> }
       </div>
     )
 }

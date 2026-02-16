@@ -10,7 +10,7 @@ export default async function Page() {
 
     return (
         <div className="min-h-screen bg-gray-900 p-4 text-white">
-            <TournirList role = {session?.user.role}/>
+            <TournirList role = {session?.user.role} idUser = {session?.user.id}/>
         </div>
     );
 }

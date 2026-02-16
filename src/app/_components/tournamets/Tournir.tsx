@@ -3,10 +3,13 @@
 import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
-import { TiebreakType, TypeStage, type Role } from "@prisma/client";
+import { Role, TiebreakType, TypeStage } from "@prisma/client";
 import Group from "./Group";
 import Bracket from "./Bracket";
 import TableRezultTournir from "./TableRezultTournir";
+import { useState } from "react";
+import CreateTournirParticipants from "./CreateTournirParticipants";
+import UpdateTournir from "./UpdateTournir";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)
@@ -23,15 +26,18 @@ export function PerevodTiebreakType(type: TiebreakType){
   if(type === TiebreakType.HEAD_TO_HEAD)
     return "результаты личных встреч"
   else if(type === TiebreakType.POINTS)
-    return "дополнительные показатели по набранным очкам"
+    return "по набранным очкам"
   else if(type === TiebreakType.SCORE_DIFF)
-    return "разницы набранных и пропущенных очков"
+    return "разницы набранных и пропущенных голов"
   else 
     return "-"
 }
 
 
-export default function Tournir({role, idTournir}: {role: Role | undefined, idTournir: string}){
+export default function Tournir({role, idTournir, idUser}: {role: Role | undefined, idTournir: string, idUser: string | undefined}){
+
+  const [open, setOpen] = useState<boolean>(false)
+  const [open2, setOpen2] = useState<boolean>(false)
 
   const { data: tournir, isLoading, error, refetch } = api.tournametsRouter.getTurnir.useQuery({idTournir});
   if (isLoading) return <div>Загрузка...</div>;
@@ -40,17 +46,47 @@ export default function Tournir({role, idTournir}: {role: Role | undefined, idTo
 
   const groups = tournir?.groups ?? [];
   const brackets = tournir?.brackets ?? [];
+  const hasGroupMatches = groups.some(
+  (group) => group.matches?.length > 0
+  );
   
   return (
     <div className="flex flex-col gap-8 p-8 bg-gray-900 text-white">
+      {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id)) && (
+        <button
+          onClick={() => {
+            if (groups.length ===0) setOpen2(true);
+          }}
+          disabled={groups.length !==0}
+          className={`ml-auto px-5 py-2.5 rounded-xl font-medium shadow-md transition
+            ${
+              groups.length !==0
+                ? "bg-gray-500 cursor-not-allowed opacity-60"
+                : "bg-emerald-500 hover:bg-emerald-600 hover:shadow-lg active:scale-95"
+            }
+          `}
+        >
+          Обновить турнир
+        </button>
+      )}
+      {open2 && (
+        <UpdateTournir
+          idTournir={idTournir}
+          onClose={() => setOpen2(false)}
+          onCreated={refetch}
+        />
+      )}
       <h2 className="text-3xl font-bold mb-4 text-center">{tournir.nameTurnir || "Турнир"}</h2>
-      <div className="flex flex-col gap-2 mb-2">
-        <h4 className="text-2xl text-gray-300"> Описание:  {tournir.description || "Без описания"}</h4>
+      <div className="mb-2">
+        <p className="text-xl text-gray-300">
+          <span className="font-semibold">Описание:</span>{"  "}
+          {tournir.description || "Без описания"}
+        </p>
       </div>
       <div className="flex flex-col gap-2 mb-2">
             <ul className="text-lg text-gray-400 space-y-1 mb-3">
-              <li><b className="text-gray-300">Организатор:</b> {`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`}</li>
-              <li><b className="text-gray-300">Текущий этап турнира:</b> {Perevod(tournir.stage)}</li>
+              <li><b className="text-gray-300">Организатор:</b> {(tournir.createdBy.surname && tournir.createdBy.firstname) ? (`${tournir.createdBy.surname} ${tournir.createdBy.firstname}`):"Без имени"}</li>
+              <li><b className="text-gray-300">Текущий этап турнира:</b> {groups.length ===0 ? "Турнир еще не начался" : Perevod(tournir.stage)}</li>
               <li><b className="text-gray-300">Всего участников:</b> {tournir.participantsCount}</li>
               <li><b className="text-gray-300">Количество групп:</b> {tournir.groupsCount}</li>
               <li><b className="text-gray-300">Тай-брейк:</b> {PerevodTiebreakType(tournir.tiebreakType)}</li>
@@ -58,6 +94,33 @@ export default function Tournir({role, idTournir}: {role: Role | undefined, idTo
               <li><b className="text-gray-300">Дата обновления:</b> {new Date(tournir.updatedAt).toLocaleDateString("ru-RU")}</li>
             </ul>
       </div>
+      
+      {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id)) && (
+        <button
+          onClick={() => {
+            if (groups.length ===0) setOpen(true);
+          }}
+          disabled={groups.length !==0}
+          className={`mr-auto px-5 py-2.5 rounded-xl font-medium shadow-md transition
+            ${
+              groups.length !==0
+                ? "bg-gray-500 cursor-not-allowed opacity-60"
+                : "bg-emerald-500 hover:bg-emerald-600 hover:shadow-lg active:scale-95"
+            }
+          `}
+        >
+          Добавить участников турнира
+        </button>
+        )}
+        {open && (
+          <CreateTournirParticipants
+            idTournir={idTournir}
+            onClose={() => setOpen(false)}
+            onCreated={refetch}
+          />
+        )}
+        
+
       <h2 className="text-2xl font-bold mb-2 text-center">Групповой этап</h2>
       <Group groups={groups} />
       <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>

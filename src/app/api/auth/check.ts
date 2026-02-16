@@ -16,6 +16,14 @@ export async function isOrganizer() {
     return true
 }
 
+export async function isOrganizerOwner(idOwner:string | undefined) {
+    const session = await auth();
+    if (!session || idOwner) return false;
+    if (session.user.role !== $Enums.Role.ORGANIZER && session.user.id !==idOwner)
+        return false
+    return true
+}
+
 export async function getId() {
     const session = await auth();
     return session?.user.id
