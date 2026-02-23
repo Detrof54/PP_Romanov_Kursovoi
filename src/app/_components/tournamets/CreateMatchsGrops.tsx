@@ -1,10 +1,11 @@
 "use client";
 
 import { api } from "~/trpc/react";
+import type { Group } from "./Group";
 
 type Props = {
   idTournir: string;
-  groups: any[];
+  groups: Group[];
   onCreated: () => void;
 };
 

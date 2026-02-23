@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import type { TurnirParticipant } from "./Group";
 
 type Props = {
   idTournir: string;
-  participants: any[];
+  participants: TurnirParticipant[];
   groupsCount: number;
   groupsAlreadyCreated: boolean;
   onCreated: () => void;

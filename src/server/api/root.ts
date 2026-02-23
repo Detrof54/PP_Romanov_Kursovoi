@@ -3,6 +3,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { homeRouter } from "./routers/home";
 import { tournametsRouter } from "./routers/tournamets";
 import { userProfileRouter } from "./routers/profile";
+import { tournametsBracketRouter } from "./routers/tournamentsBracket";
 
 
 /**
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
     homeRouter: homeRouter,
     tournametsRouter: tournametsRouter,
     userProfileRouter:userProfileRouter,
+    tournametsBracketRouter:tournametsBracketRouter,
 });
 
 // export type definition of API

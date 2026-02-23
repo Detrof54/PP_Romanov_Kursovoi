@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { number, z } from "zod";
 import { isAdmin, isOrganizer, isOrganizerOwner } from "~/app/api/auth/check";
-import { TypeStage } from "@prisma/client";
+import { TiebreakType, TypeStage } from "@prisma/client";
 
 export const tournametsRouter = createTRPCRouter({
 //ПОЛУЧЕНИЕ СПИСКА ТУРНИРОВ
@@ -360,7 +360,7 @@ export const tournametsRouter = createTRPCRouter({
     return { success: true };
   }),
 
-
+//СОЗДАНИЕ МАТЧЕЙ ДЛЯ ГРУПП
 createGroupMatches: protectedProcedure
   .input(
     z.object({
@@ -489,6 +489,254 @@ createGroupMatches: protectedProcedure
     return { success: true };
   }),
 
+//СОЗДАНИЕ РЕЗУЛЬТАТОВ ГРУППОВЫХ МАТЧЕЙ с изменением статистики
+  setMatchResult: protectedProcedure
+  .input(z.object({
+    matchId: z.string(),
+    scoreA: z.number(),
+    scoreB: z.number(),
+  }))
+  .mutation(async ({ ctx, input }) => {
+
+    return await ctx.db.$transaction(async (tx) => {
+
+      const match = await tx.groupMatch.findUnique({
+        where: { id: input.matchId },
+      });
+
+      if (!match) throw new Error("Матч не найден");
+      if (match.status === "FINISHED")
+        throw new Error("Матч уже завершён");
+
+      let winnerId = null;
+      if (input.scoreA > input.scoreB) winnerId = match.playerAId;
+      if (input.scoreB > input.scoreA) winnerId = match.playerBId;
+
+      // 1️⃣ Создаём результат
+      await tx.groupMatchResult.create({
+        data: {
+          scoreA: input.scoreA,
+          scoreB: input.scoreB,
+          winnerId,
+          groupMatch: {
+            connect: { id: match.id }
+          }
+        }
+      });
+
+      // 2️⃣ Обновляем матч
+      await tx.groupMatch.update({
+        where: { id: match.id },
+        data: { status: "FINISHED" }
+      });
+
+      // 3️⃣ Обновляем статистику игрока A
+      await tx.turnirParticipant.update({
+        where: { id: match.playerAId },
+        data: {
+          scoreFor: { increment: input.scoreA },
+          scoreAgainst: { increment: input.scoreB },
+          wins: input.scoreA > input.scoreB ? { increment: 1 } : undefined,
+          defeat: input.scoreA < input.scoreB ? { increment: 1 } : undefined,
+          points:
+            input.scoreA > input.scoreB
+              ? { increment: 3 }
+              : input.scoreA === input.scoreB
+              ? { increment: 1 }
+              : undefined,
+        }
+      });
+
+      // 4️⃣ Обновляем статистику игрока B
+      await tx.turnirParticipant.update({
+        where: { id: match.playerBId },
+        data: {
+          scoreFor: { increment: input.scoreB },
+          scoreAgainst: { increment: input.scoreA },
+          wins: input.scoreB > input.scoreA ? { increment: 1 } : undefined,
+          defeat: input.scoreB < input.scoreA ? { increment: 1 } : undefined,
+          points:
+            input.scoreB > input.scoreA
+              ? { increment: 3 }
+              : input.scoreA === input.scoreB
+              ? { increment: 1 }
+              : undefined,
+        }
+      });
+
+      return { success: true };
+
+    });
+  }),
 
 
-});
+//ФИНИШЬ ГРУППОВОГО ЭТАПА
+  finishGroupStage: protectedProcedure
+    .input(z.object({ idTournir: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+
+      const { idTournir } = input;
+
+      return await ctx.db.$transaction(async (tx) => {
+
+        // 1️⃣ Получаем турнир
+        const tournament = await tx.turnir.findUnique({
+          where: { id: idTournir },
+          include: {
+            groups: {
+              include: {
+                matches: {
+                  include: { result: true }
+                }
+              }
+            }
+          }
+        });
+
+        if (!tournament)
+          throw new TRPCError({ code: "NOT_FOUND" });
+
+        if (tournament.stage !== TypeStage.GROUP)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Групповой этап уже завершён"
+          });
+
+        const allMatches = tournament.groups.flatMap(g => g.matches);
+
+        if (allMatches.length === 0)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Нет матчей"
+          });
+
+        // 2️⃣ Проверка что ВСЕ матчи сыграны
+        const notFinished = allMatches.some(m => !m.result);
+        if (notFinished)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Не все матчи сыграны"
+          });
+
+        // 3️⃣ Обнуляем статистику
+        await tx.turnirParticipant.updateMany({
+          where: { tournamentId: idTournir },
+          data: {
+            points: 0,
+            wins: 0,
+            defeat: 0,
+            scoreFor: 0,
+            scoreAgainst: 0
+          }
+        });
+
+        // 4️⃣ Пересчитываем статистику по всем матчам
+        for (const match of allMatches) {
+          const result = match.result!;
+          const { scoreA, scoreB, winnerId } = result;
+
+          // Игрок A
+          await tx.turnirParticipant.update({
+            where: { id: match.playerAId },
+            data: {
+              scoreFor: { increment: scoreA },
+              scoreAgainst: { increment: scoreB },
+              ...(winnerId === match.playerAId
+                ? { wins: { increment: 1 }, points: { increment: 3 } }
+                : { defeat: { increment: 1 } })
+            }
+          });
+
+          // Игрок B
+          await tx.turnirParticipant.update({
+            where: { id: match.playerBId },
+            data: {
+              scoreFor: { increment: scoreB },
+              scoreAgainst: { increment: scoreA },
+              ...(winnerId === match.playerBId
+                ? { wins: { increment: 1 }, points: { increment: 3 } }
+                : { defeat: { increment: 1 } })
+            }
+          });
+        }
+
+        // 5️⃣ Обработка только HEAD_TO_HEAD
+        let extraMatchesCreated = false;
+
+        if (tournament.tiebreakType === TiebreakType.HEAD_TO_HEAD) {
+
+          for (const group of tournament.groups) {
+
+            const participants = await tx.turnirParticipant.findMany({
+              where: { groupId: group.id }
+            });
+
+            // группируем по очкам
+            const map = new Map<number, typeof participants>();
+
+            for (const p of participants) {
+              if (!map.has(p.points)) map.set(p.points, []);
+              map.get(p.points)!.push(p);
+            }
+
+            for (const samePoints of map.values()) {
+
+              if (samePoints.length <= 1) continue;
+
+              // создаём доп. матчи если их ещё нет
+              for (let i = 0; i < samePoints.length - 1; i++) {
+                for (let j = i + 1; j < samePoints.length; j++) {
+
+                  const playerA = samePoints[i]!;
+                  const playerB = samePoints[j]!;
+
+                  const existing = await tx.groupMatch.findFirst({
+                    where: {
+                      round: 0,
+                      groupId: group.id,
+                      OR: [
+                        { playerAId: playerA.id, playerBId: playerB.id },
+                        { playerAId: playerB.id, playerBId: playerA.id }
+                      ]
+                    }
+                  });
+
+                  if (!existing) {
+                    await tx.groupMatch.create({
+                      data: {
+                        round: 0,
+                        groupId: group.id,
+                        playerAId: playerA.id,
+                        playerBId: playerB.id
+                      }
+                    });
+
+                    extraMatchesCreated = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // 6️⃣ Если создали доп. матчи — НЕ переводим в плей-офф
+        if (extraMatchesCreated) {
+          return {
+            success: false,
+            message: "Созданы дополнительные матчи для тай-брейка"
+          };
+        }
+
+        // 7️⃣ Переводим турнир в BRACKET
+        await tx.turnir.update({
+          where: { id: idTournir },
+          data: {
+            stage: TypeStage.BRACKET
+          }
+        });
+
+        return { success: true };
+      });
+    }),
+
+})
