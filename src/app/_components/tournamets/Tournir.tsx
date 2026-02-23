@@ -14,6 +14,7 @@ import FormationGroup from "./Group/FormationGroup";
 import CreateMatchsGrops from "./Group/CreateMatchsGrops";
 import CreateRezultMatchsGrops from "./Group/CreateRezultMatchsGroups";
 import FinishedGroupStage from "./Group/FinishedGroupStage";
+import FormationBracket from "./Bracket/FormationBracket";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)
@@ -50,9 +51,7 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
 
   const groups = tournir?.groups ?? [];
   const brackets = tournir?.brackets ?? [];
-  const hasGroupMatches = groups.some(
-  (group) => group.matches?.length > 0
-  );
+
   
   return (
     <div className="flex flex-col gap-8 p-8 bg-gray-900 text-white">
@@ -136,6 +135,7 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
 
       {/*Плей-офф */}
       <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>
+      {brackets.length <= 0 && <FormationBracket idTournir={idTournir} stage={tournir.stage} onCreated={refetch} totalParticipants={tournir.participantsCount} />}
       <Bracket brackets={brackets} />
 
       
