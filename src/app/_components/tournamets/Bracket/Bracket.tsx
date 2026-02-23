@@ -2,8 +2,6 @@
 
 import { api } from "~/trpc/react";
 import { BracketType, MatchStatus, type Turnir } from "@prisma/client";
-import GroupTables from "./GroupTable";
-import GroupMatchList from "./GroupMatchsList";
 
 export interface Participant{
   id: string;

@@ -4,16 +4,16 @@ import { Card, CardContent } from "~/app/ui/card";
 import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Role, TiebreakType, TypeStage } from "@prisma/client";
-import Group from "./Group";
-import Bracket from "./Bracket";
+import Group from "./Group/Group";
+import Bracket from "./Bracket/Bracket";
 import TableRezultTournir from "./TableRezultTournir";
 import { useState } from "react";
 import CreateTournirParticipants from "./CreateTournirParticipants";
 import UpdateTournir from "./UpdateTournir";
-import FormationGroup from "./FormationGroup";
-import CreateMatchsGrops from "./CreateMatchsGrops";
-import CreateRezultMatchsGrops from "./CreateRezultMatchsGroups";
-import FinishedGroupStage from "./FinishedGroupStage";
+import FormationGroup from "./Group/FormationGroup";
+import CreateMatchsGrops from "./Group/CreateMatchsGrops";
+import CreateRezultMatchsGrops from "./Group/CreateRezultMatchsGroups";
+import FinishedGroupStage from "./Group/FinishedGroupStage";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)

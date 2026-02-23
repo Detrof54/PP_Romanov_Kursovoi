@@ -1,8 +1,8 @@
 "use client"
 
 import { MatchStatus, Role, TiebreakType, TypeStage } from "@prisma/client";
-import type { Group, TurnirParticipant } from "./Group";
-import type { Bracket, BracketMatch } from "./Bracket";
+import type { Group, TurnirParticipant } from "./Group/Group";
+import type { Bracket, BracketMatch } from "./Bracket/Bracket";
 
 export interface User{
   id: string
