@@ -106,11 +106,36 @@ export const tournametsRouter = createTRPCRouter({
       where: { id: input.id },
     }); 
     if (!tournament) throw new TRPCError({code: "NOT_FOUND",message: "Турнир не найден",});
-    if(!(await (isAdmin() || isOrganizerOwner(tournament?.createdById)))) throw new TRPCError({code: "FORBIDDEN",message: "Нет прав",});
 
-    await ctx.db.turnir.delete({
-      where: { id: input.id },
-    });
+    const isUserAdmin = await isAdmin();
+    const isOwner = await isOrganizerOwner(tournament.createdById);
+    if (!isUserAdmin && !isOwner)
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Нет прав",
+      });
+
+      await ctx.db.bracketMatchResult.deleteMany({
+        where: { bracketMatch: { bracket: { tournamentId: input.id } } }
+      });
+      await ctx.db.bracketMatch.deleteMany({
+        where: { bracket: { tournamentId: input.id } }
+      });
+      await ctx.db.bracket.deleteMany({
+        where: { tournamentId: input.id }
+      });
+      await ctx.db.groupMatchResult.deleteMany({
+        where: { groupMatch: { group: { tournamentId: input.id } } }
+      });
+      await ctx.db.groupMatch.deleteMany({
+        where: { group: { tournamentId: input.id } }
+      });
+      await ctx.db.group.deleteMany({
+        where: { tournamentId: input.id }
+      });
+      await ctx.db.turnir.delete({
+        where: { id: input.id },
+      });
 
     return { success: true };
   }),

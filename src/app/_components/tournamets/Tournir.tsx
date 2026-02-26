@@ -15,6 +15,8 @@ import CreateMatchsGrops from "./Group/CreateMatchsGrops";
 import CreateRezultMatchsGrops from "./Group/CreateRezultMatchsGroups";
 import FinishedGroupStage from "./Group/FinishedGroupStage";
 import FormationBracket from "./Bracket/FormationBracket";
+import CreateMatchRezultBracket from "./Bracket/CreateMatchRezultBracket";
+import FinishedBracketStage from "./Bracket/FinishedBracketStage";
 
 export function Perevod(type: TypeStage){
   if(type === TypeStage.GROUP)
@@ -137,7 +139,8 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
       <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>
       {brackets.length <= 0 && <FormationBracket idTournir={idTournir} stage={tournir.stage} onCreated={refetch} totalParticipants={tournir.participantsCount} />}
       <Bracket brackets={brackets} />
-
+      <CreateMatchRezultBracket brackets={brackets} onUpdated={refetch}/>
+      {(tournir.stage !== "FINISHED" &&  tournir.stage !== "GROUP") && <FinishedBracketStage brackets={brackets} tournamentId={idTournir} onUpdated={refetch}/>}
       
       <h2 className="text-2xl font-bold mt-6 text-center">Общие результаты турнира</h2>
       <TableRezultTournir tournir={tournir} />

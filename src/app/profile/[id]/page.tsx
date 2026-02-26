@@ -30,8 +30,7 @@ export default async function Page({ params }: PageProps) {
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
       {user.role === "USER" &&  <UserProfile user={user} />}
       {user.role === "ADMIN" && <AdminProfile user_admin={user} />}
-      {user.role === "PILOT" && user.pilot && <PilotProfile user_pilot={user} />}
-      {user.role === "JUDGE" && user.judge && <JudgeProfile user_judge={user} />}
+
     </div>
   );
 }
