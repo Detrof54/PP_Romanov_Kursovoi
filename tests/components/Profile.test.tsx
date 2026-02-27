@@ -20,6 +20,7 @@ describe("UserProfile", () => {
           surname: "Ivanov",
           email: "ivan@test.com",
           role: "USER",
+          tournaments: [],
         }}
       />
     );
