@@ -12,11 +12,13 @@ function Perevod(type: BracketType) {
 }
 
 export default function CreateMatchRezultBracket({
+  idTournir,
   brackets,
   onUpdated
 }: {
-  brackets: Bracket[];
-  onUpdated: () => void;
+  idTournir: string,
+  brackets: Bracket[],
+  onUpdated: () => void,
 }) {
 
   const [openBracketIds, setOpenBracketIds] = useState<string[]>([]);
@@ -29,7 +31,6 @@ export default function CreateMatchRezultBracket({
     <div className="space-y-10 mt-8">
 
       {brackets.map(bracket => {
-
         const unfinished = bracket.matches
           ?.filter(m => m.status === MatchStatus.SCHEDULED)
           .sort((a, b) => a.round - b.round) ?? [];
@@ -76,6 +77,7 @@ export default function CreateMatchRezultBracket({
                 loading={setResult.isPending}
                 onSave={(a, b) =>
                   setResult.mutate({
+                    idTournir: idTournir,
                     matchId: match.id,
                     scoreA: a,
                     scoreB: b

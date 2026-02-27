@@ -14,7 +14,6 @@ export const userProfileRouter = createTRPCRouter({
       });
     }),
 
-
   updateBaseProfile: publicProcedure
   .input(
     z.object({
@@ -34,8 +33,6 @@ export const userProfileRouter = createTRPCRouter({
     });
   }),
 
-
-
   deleteProfile: publicProcedure
   .input(
     z.object({
@@ -52,9 +49,6 @@ export const userProfileRouter = createTRPCRouter({
     });
 
     return { success: true };
-}),
-
-
-
+  }),
 
 });

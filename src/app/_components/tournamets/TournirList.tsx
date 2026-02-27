@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "~/app/ui/card";
-import { CalendarDays } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Role, TypeStage } from "@prisma/client";
 import Link from "next/link";
@@ -22,7 +20,7 @@ export function Perevod(type: TypeStage){
 }
 
 export default function TournirList({role, idUser}: {role: Role | undefined, idUser: string | undefined}){
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
   const utils = api.useUtils();
   const { data: tournirs, isLoading, error, refetch } = api.tournametsRouter.getTurnirs.useQuery();
@@ -45,7 +43,7 @@ export default function TournirList({role, idUser}: {role: Role | undefined, idU
             <div className="border border-gray-700 rounded-xl p-5 bg-gray-800 hover:bg-gray-700 transition cursor-pointer">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-xl font-semibold"> {tournir.nameTurnir || "Без названия"}</h3>
-                {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser===tournir.createdBy.id)) && (
+                {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id)) && (
                   <div className="flex gap-2">
                     <button
                       onClick={(e) => {

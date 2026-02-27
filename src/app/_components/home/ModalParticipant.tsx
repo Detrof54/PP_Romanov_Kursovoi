@@ -23,16 +23,12 @@ type ParticipantModalProps = {
   role: Role | undefined;
 };
 
-export default function ModalParticipant({
-  participant,
-  onClose,
-  role,
-}: ParticipantModalProps) {
+export default function ModalParticipant({participant, onClose, role,}: ParticipantModalProps){
   const [isEdit, setIsEdit] = useState(false);
 
   const [firstname, setFirstname] = useState(participant.firstname);
   const [surname, setSurname] = useState(participant.surname);
-  const [rating, setRating] = useState<number | "">(participant.rating);
+  const [rating, setRating] = useState<number|"">(participant.rating);
   
   const utils = api.useUtils();
   const updateParticipant =

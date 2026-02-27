@@ -7,7 +7,6 @@ import { TiebreakType } from "@prisma/client";
 export default function CreateNewTournir({onClose,onCreated,}: {onClose: () => void;onCreated: () => void;}) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [participantsCount, setParticipantsCount] = useState(8);
   const [groupsCount, setGroupsCount] = useState("");
   const [tiebreakType, setTiebreakType] = useState<TiebreakType>("POINTS");
 

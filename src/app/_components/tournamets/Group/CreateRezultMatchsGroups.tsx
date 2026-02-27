@@ -5,13 +5,7 @@ import { api } from "~/trpc/react";
 import { MatchStatus } from "@prisma/client";
 import type { Group, GroupMatch } from "./Group";
 
-export default function CreateRezultMatchsGrops({
-  groups,
-  onUpdated
-}: {
-  groups: Group[];
-  onUpdated: () => void;
-}) {
+export default function CreateRezultMatchsGrops({groups,onUpdated,idTournir,}: {groups: Group[],onUpdated: () => void, idTournir: string;}) {
 
   const [openGroupIds, setOpenGroupIds] = useState<string[]>([]);
   const setResult = api.tournametsRouter.setMatchResult.useMutation({
@@ -70,6 +64,7 @@ export default function CreateRezultMatchsGrops({
                 key={match.id}
                 match={match}
                 onSave={(a,b) => setResult.mutate({
+                  idTournir: idTournir,
                   matchId: match.id,
                   scoreA: a,
                   scoreB: b

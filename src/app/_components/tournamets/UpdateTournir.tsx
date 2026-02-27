@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import { TiebreakType } from "@prisma/client";
-import { Perevod, PerevodTiebreakType } from "./Tournir";
+import { PerevodTiebreakType } from "./Tournir";
 
 type Props = {
   idTournir: string;

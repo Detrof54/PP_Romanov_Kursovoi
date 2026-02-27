@@ -1,9 +1,7 @@
 "use server";
 
 import { auth } from "~/server/auth";
-import { api } from "~/trpc/server";
 import TournirList from "../_components/tournamets/TournirList";
-
 
 export default async function Page() {
     const session = await auth();

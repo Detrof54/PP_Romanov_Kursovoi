@@ -2,7 +2,6 @@
 
 import Tournir from "~/app/_components/tournamets/Tournir";
 import { auth } from "~/server/auth";
-import { api } from "~/trpc/server";
 
 type PageProps = {
   params: Promise<{ id: string }>;

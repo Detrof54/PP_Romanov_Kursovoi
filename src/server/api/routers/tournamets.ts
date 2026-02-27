@@ -105,15 +105,12 @@ export const tournametsRouter = createTRPCRouter({
     const tournament = await ctx.db.turnir.findUnique({
       where: { id: input.id },
     }); 
-    if (!tournament) throw new TRPCError({code: "NOT_FOUND",message: "Турнир не найден",});
+    if (!tournament) throw new TRPCError({code: "NOT_FOUND",message: "Турнир для удаления не найден",});
 
     const isUserAdmin = await isAdmin();
     const isOwner = await isOrganizerOwner(tournament.createdById);
     if (!isUserAdmin && !isOwner)
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Нет прав",
-      });
+      throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для удаления турнира",});
 
       await ctx.db.bracketMatchResult.deleteMany({
         where: { bracketMatch: { bracket: { tournamentId: input.id } } }
@@ -151,7 +148,9 @@ export const tournametsRouter = createTRPCRouter({
     })
   )
   .mutation(async ({ ctx, input }) => {
-    if(!(await (isAdmin() || isOrganizer()))) throw new TRPCError({code: "FORBIDDEN",message: "Нет прав",});
+    const isUserAdmin = await isAdmin();
+    const isUserOrganizer = await isOrganizer();
+    if(!isUserAdmin && !isUserOrganizer) throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для создания турнира",});
 
     return ctx.db.turnir.create({
       data: {
@@ -185,72 +184,46 @@ export const tournametsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { idTournir, idParcipants } = input;
 
-      // 1️⃣ Проверяем турнир
       const tournir = await ctx.db.turnir.findUnique({
         where: { id: idTournir },
         include: {
-          participants: true, // TurnirParticipant[]
+          participants: true, 
         },
       });
 
-      if (!tournir) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Турнир не найден",
-        });
-      }
+      if (!tournir) throw new TRPCError({code: "NOT_FOUND", message: "Турнир для добавления участников не найден",});
+          
+      const isUserAdmin = await isAdmin();
+      const isOwner = await isOrganizerOwner(tournir.createdById);
+      if (!isUserAdmin && !isOwner)
+        throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для добавления участников в турнир",});
 
-      // 2️⃣ Проверка прав
-      if (
-        !(await isAdmin()) &&
-        !(await isOrganizerOwner(tournir.createdById))
-      ) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Нет прав",
-        });
-      }
-
-      // 3️⃣ Проверяем что Participant существуют
       const realParticipants = await ctx.db.participant.findMany({
         where: {
           id: { in: idParcipants },
         },
       });
 
-      if (realParticipants.length !== idParcipants.length) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Некоторые участники не найдены",
-        });
-      }
-
-      // 4️⃣ Проверяем кто уже добавлен
-      const existingIds = tournir.participants
-        .map((tp) => tp.participantId)
-        .filter(Boolean) as string[];
+      if (realParticipants.length !== idParcipants.length) 
+        throw new TRPCError({code: "BAD_REQUEST", message: "Некоторые участники не найдены",});
+      
+      const existingIds = tournir.participants.map((tp) => tp.participantId).filter(Boolean) as string[];
 
       const newIds = idParcipants.filter(
         (id) => !existingIds.includes(id)
       );
 
-      if (newIds.length === 0) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Все участники уже добавлены",
-        });
-      }
-
-      // 5️⃣ Создаем записи в TurnirParticipant
+      if (newIds.length === 0) 
+        throw new TRPCError({code: "BAD_REQUEST",message: "Все участники уже добавлены",});
+     
       await ctx.db.$transaction([
         ctx.db.turnirParticipant.createMany({
           data: newIds.map((participantId) => ({
             tournamentId: idTournir,
             participantId,
           })),
-          skipDuplicates: true, // защита от @@unique
+          skipDuplicates: true, 
         }),
-
         ctx.db.turnir.update({
           where: { id: idTournir },
           data: {
@@ -285,33 +258,17 @@ export const tournametsRouter = createTRPCRouter({
       },
     });
 
-    if (!tournir) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Турнир не найден",
-      });
-    }
+    if (!tournir) 
+      throw new TRPCError({code: "NOT_FOUND",message: "Турнир не найден",});
+    
+    const isUserAdmin = await isAdmin();
+    const isOwner = await isOrganizerOwner(tournir.createdById);
+    if (!isUserAdmin && !isOwner)
+      throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для обновления турнира",});
 
-    // ✅ Проверка прав
-    const admin = await isAdmin();
-    const owner = await isOrganizerOwner(tournir.createdById);
-
-    if (!admin && !owner) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Нет прав",
-      });
-    }
-
-    // ✅ Запрет если уже созданы группы
-    if (tournir.groups.length > 0) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Нельзя редактировать — группы уже созены",
-      });
-    }
-
-    // ✅ Обновляем только поля турнира
+    if (tournir.groups.length > 0) 
+      throw new TRPCError({code: "BAD_REQUEST",message: "Нельзя редактировать — группы уже созданы",});
+    
     await ctx.db.turnir.update({
       where: { id: idTournir },
       data: {
@@ -324,7 +281,6 @@ export const tournametsRouter = createTRPCRouter({
 
     return { success: true };
   }),
-
 
 //СОЗДАНИЕ ГРУПП
   createGroups: protectedProcedure
@@ -347,31 +303,25 @@ export const tournametsRouter = createTRPCRouter({
       include: { groups: true },
     });
 
-    if (!tournir) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Турнир не найден",
-      });
-    }
+    if (!tournir) 
+      throw new TRPCError({ code: "NOT_FOUND",message: "Турнир не найден",});
 
-    if (tournir.groups.length > 0) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Группы уже созданы",
-      });
-    }
+    const isUserAdmin = await isAdmin();
+    const isOwner = await isOrganizerOwner(tournir.createdById);
+    if (!isUserAdmin && !isOwner)
+      throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для создания групп",});
 
+    if (tournir.groups.length > 0) 
+      throw new TRPCError({code: "BAD_REQUEST",message: "Группы уже созданы",});
+    
     await ctx.db.$transaction(async (tx) => {
       for (const group of groups) {
-        // 1️⃣ создаем группу
         const createdGroup = await tx.group.create({
           data: {
             name: group.name,
             tournamentId: idTournir,
           },
         });
-
-        // 2️⃣ привязываем участников к группе
         await tx.turnirParticipant.updateMany({
           where: {
             id: { in: group.participantIds },
@@ -407,41 +357,28 @@ createGroupMatches: protectedProcedure
       },
     });
 
-    if (!tournir) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Турнир не найден",
-      });
-    }
+    if (!tournir) 
+      throw new TRPCError({code: "NOT_FOUND", message: "Турнир не найден",});
+    
+    const isUserAdmin = await isAdmin();
+    const isOwner = await isOrganizerOwner(tournir.createdById);
+    if (!isUserAdmin && !isOwner)
+      throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для создания матчей в группе",});
 
-    if (tournir.groups.length === 0) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Группы не созданы",
-      });
-    }
-
-    // 🚫 Проверка на повторную генерацию
+    if (tournir.groups.length === 0) 
+      throw new TRPCError({code: "BAD_REQUEST",message: "Группы не созданы",});
+    
     const matchesExist = tournir.groups.some(
       (g) => g.matches.length > 0
     );
 
-    if (matchesExist) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Матчи уже созданы",
-      });
-    }
-
+    if (matchesExist) throw new TRPCError({code: "BAD_REQUEST",message: "Матчи уже созданы",});
+    
     await ctx.db.$transaction(async (tx) => {
       for (const group of tournir.groups) {
         const players = group.participants;
 
         if (players.length < 2) continue;
-
-        // ===============================
-        // 1️⃣ Генерируем все пары
-        // ===============================
 
         const pairs: {
           a: typeof players[number];
@@ -461,10 +398,6 @@ createGroupMatches: protectedProcedure
             });
           }
         }
-
-        // ===============================
-        // 2️⃣ Распределяем по раундам
-        // ===============================
 
         let remainingPairs = pairs;
 
@@ -492,10 +425,6 @@ createGroupMatches: protectedProcedure
           remainingPairs = nextRemaining;
         }
 
-        // ===============================
-        // 3️⃣ Сохраняем в БД
-        // ===============================
-
         for (const [roundIndex, roundMatches] of rounds.entries()) {
           for (const match of roundMatches) {
             await tx.groupMatch.create({
@@ -520,8 +449,29 @@ createGroupMatches: protectedProcedure
     matchId: z.string(),
     scoreA: z.number(),
     scoreB: z.number(),
+    idTournir: z.string(),
   }))
   .mutation(async ({ ctx, input }) => {
+    const tournir = await ctx.db.turnir.findUnique({
+      where: { id: input.idTournir},
+      include: {
+        groups: {
+          include: {
+            participants: true,
+            matches: true,
+          },
+        },
+      },
+    });
+
+    if (!tournir) 
+      throw new TRPCError({code: "NOT_FOUND", message: "Турнир не найден",});
+
+    const isUserAdmin = await isAdmin();
+    const isOwner = await isOrganizerOwner(tournir.createdById);
+    if (!isUserAdmin && !isOwner)
+      throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для создания матчей в группе",});
+
 
     return await ctx.db.$transaction(async (tx) => {
 
@@ -529,7 +479,8 @@ createGroupMatches: protectedProcedure
         where: { id: input.matchId },
       });
 
-      if (!match) throw new Error("Матч не найден");
+      if (!match) 
+        throw new Error("Матч не найден");
       if (match.status === "FINISHED")
         throw new Error("Матч уже завершён");
 
@@ -537,7 +488,6 @@ createGroupMatches: protectedProcedure
       if (input.scoreA > input.scoreB) winnerId = match.playerAId;
       if (input.scoreB > input.scoreA) winnerId = match.playerBId;
 
-      // 1️⃣ Создаём результат
       await tx.groupMatchResult.create({
         data: {
           scoreA: input.scoreA,
@@ -549,13 +499,11 @@ createGroupMatches: protectedProcedure
         }
       });
 
-      // 2️⃣ Обновляем матч
       await tx.groupMatch.update({
         where: { id: match.id },
         data: { status: "FINISHED" }
       });
 
-      // 3️⃣ Обновляем статистику игрока A
       await tx.turnirParticipant.update({
         where: { id: match.playerAId },
         data: {
@@ -572,7 +520,6 @@ createGroupMatches: protectedProcedure
         }
       });
 
-      // 4️⃣ Обновляем статистику игрока B
       await tx.turnirParticipant.update({
         where: { id: match.playerBId },
         data: {
@@ -599,12 +546,9 @@ createGroupMatches: protectedProcedure
   finishGroupStage: protectedProcedure
     .input(z.object({ idTournir: z.string() }))
     .mutation(async ({ ctx, input }) => {
-
       const { idTournir } = input;
 
       return await ctx.db.$transaction(async (tx) => {
-
-        // 1️⃣ Получаем турнир
         const tournament = await tx.turnir.findUnique({
           where: { id: idTournir },
           include: {
@@ -618,32 +562,25 @@ createGroupMatches: protectedProcedure
           }
         });
 
-        if (!tournament)
-          throw new TRPCError({ code: "NOT_FOUND" });
+        if (!tournament) 
+          throw new TRPCError({code: "NOT_FOUND", message: "Турнир не найден",});
+
+        const isUserAdmin = await isAdmin();
+        const isOwner = await isOrganizerOwner(tournament.createdById);
+        if (!isUserAdmin && !isOwner)
+          throw new TRPCError({code: "FORBIDDEN", message: "Нет прав для создания матчей в группе",});
 
         if (tournament.stage !== TypeStage.GROUP)
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Групповой этап уже завершён"
-          });
+          throw new TRPCError({code: "BAD_REQUEST",message: "Групповой этап уже завершён"});
 
         const allMatches = tournament.groups.flatMap(g => g.matches);
-
         if (allMatches.length === 0)
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Нет матчей"
-          });
+          throw new TRPCError({code: "BAD_REQUEST",message: "Нет матчей"});
 
-        // 2️⃣ Проверка что ВСЕ матчи сыграны
         const notFinished = allMatches.some(m => !m.result);
         if (notFinished)
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Не все матчи сыграны"
-          });
+          throw new TRPCError({code: "BAD_REQUEST",message: "Не все матчи сыграны"});
 
-        // 3️⃣ Обнуляем статистику
         await tx.turnirParticipant.updateMany({
           where: { tournamentId: idTournir },
           data: {
@@ -655,12 +592,10 @@ createGroupMatches: protectedProcedure
           }
         });
 
-        // 4️⃣ Пересчитываем статистику по всем матчам
         for (const match of allMatches) {
           const result = match.result!;
           const { scoreA, scoreB, winnerId } = result;
 
-          // Игрок A
           await tx.turnirParticipant.update({
             where: { id: match.playerAId },
             data: {
@@ -672,7 +607,6 @@ createGroupMatches: protectedProcedure
             }
           });
 
-          // Игрок B
           await tx.turnirParticipant.update({
             where: { id: match.playerBId },
             data: {
@@ -685,18 +619,14 @@ createGroupMatches: protectedProcedure
           });
         }
 
-        // 5️⃣ Обработка только HEAD_TO_HEAD
         let extraMatchesCreated = false;
 
         if (tournament.tiebreakType === TiebreakType.HEAD_TO_HEAD) {
-
           for (const group of tournament.groups) {
-
             const participants = await tx.turnirParticipant.findMany({
               where: { groupId: group.id }
             });
 
-            // группируем по очкам
             const map = new Map<number, typeof participants>();
 
             for (const p of participants) {
@@ -705,16 +635,11 @@ createGroupMatches: protectedProcedure
             }
 
             for (const samePoints of map.values()) {
-
               if (samePoints.length <= 1) continue;
-
-              // создаём доп. матчи если их ещё нет
               for (let i = 0; i < samePoints.length - 1; i++) {
                 for (let j = i + 1; j < samePoints.length; j++) {
-
                   const playerA = samePoints[i]!;
                   const playerB = samePoints[j]!;
-
                   const existing = await tx.groupMatch.findFirst({
                     where: {
                       round: 0,
@@ -725,7 +650,6 @@ createGroupMatches: protectedProcedure
                       ]
                     }
                   });
-
                   if (!existing) {
                     await tx.groupMatch.create({
                       data: {
@@ -735,7 +659,6 @@ createGroupMatches: protectedProcedure
                         playerBId: playerB.id
                       }
                     });
-
                     extraMatchesCreated = true;
                   }
                 }
@@ -744,7 +667,6 @@ createGroupMatches: protectedProcedure
           }
         }
 
-        // 6️⃣ Если создали доп. матчи — НЕ переводим в плей-офф
         if (extraMatchesCreated) {
           return {
             success: false,
@@ -752,7 +674,6 @@ createGroupMatches: protectedProcedure
           };
         }
 
-        // 7️⃣ Переводим турнир в BRACKET
         await tx.turnir.update({
           where: { id: idTournir },
           data: {

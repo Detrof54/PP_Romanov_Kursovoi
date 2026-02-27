@@ -1,11 +1,9 @@
 "use client";
 import { Card, CardContent } from "~/app/ui/card";
-import { CalendarDays, Clock } from "lucide-react";
-import { api } from "../../../trpc/react";
 import { useState } from "react";
 
 export default function InfoCompetition() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <Card className="w-full bg-white/5 border-white/10 text-white">

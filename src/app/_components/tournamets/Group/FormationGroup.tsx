@@ -18,7 +18,7 @@ export default function FormationGroup({
   groupsCount,
   groupsAlreadyCreated,
   onCreated,
-}: Props) {
+}: Props){
   const [error, setError] = useState<string | null>(null);
   const [groupNames, setGroupNames] = useState<string[]>(
     Array.from({ length: groupsCount }, () => "")

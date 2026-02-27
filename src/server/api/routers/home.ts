@@ -3,7 +3,6 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { isAdmin, isOrganizer } from "~/app/api/auth/check";
 
 export const homeRouter = createTRPCRouter({
-
   getParticipants: protectedProcedure
   .query(async ({ ctx }) => {
     return ctx.db.participant.findMany({
@@ -30,7 +29,7 @@ export const homeRouter = createTRPCRouter({
     })
   ) 
   .mutation(async ({ ctx, input }) => {
-    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    if (!(await isAdmin()) && !(await isOrganizer())) throw new Error("Доступ запрещён");
     await ctx.db.participant.create({
       data: {
         firstname: input.firstname,
@@ -47,7 +46,7 @@ export const homeRouter = createTRPCRouter({
     })
   ) 
   .mutation(async ({ ctx, input }) => {
-    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    if (!(await isAdmin()) && !(await isOrganizer())) throw new Error("Доступ запрещён");
     await ctx.db.participant.delete({
       where: {
         id: input.id,
@@ -65,7 +64,7 @@ export const homeRouter = createTRPCRouter({
     })
   ) 
   .mutation(async ({ ctx, input }) => {
-    if(!(await (isAdmin() || isOrganizer()))) throw new Error("Доступ запрещён");
+    if (!(await isAdmin()) && !(await isOrganizer())) throw new Error("Доступ запрещён");
     const data: {
       firstname?: string;
       surname?: string;
@@ -84,6 +83,5 @@ export const homeRouter = createTRPCRouter({
     });
      
   }),
-
 
 });

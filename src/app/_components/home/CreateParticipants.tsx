@@ -6,9 +6,9 @@ type Props = {
 };
 
 export function CreateParticipants ({ onCancel }: Props){
-  const [firstname, setFirstname] = useState("");
-  const [surname, setSurname] = useState("");
-  const [rating, setRating] = useState<number | "">("");
+  const [firstname, setFirstname] = useState("")
+  const [surname, setSurname] = useState("")
+  const [rating, setRating] = useState<number | "">("")
 
   const utils = api.useUtils();
   const createParticipant = api.homeRouter.createParticipant.useMutation({
@@ -23,7 +23,6 @@ export function CreateParticipants ({ onCancel }: Props){
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     createParticipant.mutate({
       firstname,
       surname,

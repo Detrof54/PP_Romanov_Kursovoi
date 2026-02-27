@@ -54,10 +54,11 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
   const groups = tournir?.groups ?? [];
   const brackets = tournir?.brackets ?? [];
 
+  const isAdminOrIsOrganizer = (role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id))
   
   return (
     <div className="flex flex-col gap-8 p-8 bg-gray-900 text-white">
-      {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id)) && (
+      {isAdminOrIsOrganizer && (
         <button
           onClick={() => {
             if (groups.length ===0) setOpen2(true);
@@ -100,7 +101,7 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
             </ul>
       </div>
       
-      {(role === Role.ADMIN || (role === Role.ORGANIZER && idUser === tournir.createdBy.id)) && (
+      {isAdminOrIsOrganizer && (
         <button
           onClick={() => {
             if (groups.length ===0) setOpen(true);
@@ -127,20 +128,19 @@ export default function Tournir({role, idTournir, idUser}: {role: Role | undefin
         
 
       <h2 className="text-2xl font-bold mb-2 text-center">Групповой этап</h2>
-      <FormationGroup idTournir={idTournir} participants={tournir.participants} groupsCount={tournir.groupsCount} groupsAlreadyCreated={groups.length > 0} onCreated={refetch} />
+      {isAdminOrIsOrganizer && 
+        <FormationGroup idTournir={idTournir} participants={tournir.participants} groupsCount={tournir.groupsCount} groupsAlreadyCreated={groups.length > 0} onCreated={refetch} />
+      }
       <Group groups={groups} />
-      <CreateMatchsGrops idTournir={idTournir} groups={tournir.groups} onCreated={refetch}/>
-      <CreateRezultMatchsGrops groups={groups} onUpdated={refetch}/>
-      {/*Кнопка окончания группового этапа */}
-      <FinishedGroupStage idTournir={idTournir} groups={groups} stage={tournir.stage} onFinished={refetch}/>
+      {isAdminOrIsOrganizer && <CreateMatchsGrops idTournir={idTournir} groups={tournir.groups} onCreated={refetch}/>}
+      {isAdminOrIsOrganizer && <CreateRezultMatchsGrops idTournir={idTournir} groups={groups} onUpdated={refetch}/>}
+      {isAdminOrIsOrganizer && <FinishedGroupStage idTournir={idTournir} groups={groups} stage={tournir.stage} onFinished={refetch}/>}
 
-
-      {/*Плей-офф */}
       <h2 className="text-2xl font-bold mb-2 mt-4 text-center">Этап на выбывание</h2>
-      {brackets.length <= 0 && <FormationBracket idTournir={idTournir} stage={tournir.stage} onCreated={refetch} totalParticipants={tournir.participantsCount} />}
+      {(brackets.length <= 0 && isAdminOrIsOrganizer)  && <FormationBracket idTournir={idTournir} stage={tournir.stage} onCreated={refetch} totalParticipants={tournir.participantsCount} />}
       <Bracket brackets={brackets} />
-      <CreateMatchRezultBracket brackets={brackets} onUpdated={refetch}/>
-      {(tournir.stage !== "FINISHED" &&  tournir.stage !== "GROUP") && <FinishedBracketStage brackets={brackets} tournamentId={idTournir} onUpdated={refetch}/>}
+      {isAdminOrIsOrganizer && <CreateMatchRezultBracket idTournir={idTournir} brackets={brackets} onUpdated={refetch}/>}
+      {(isAdminOrIsOrganizer && tournir.stage !== "FINISHED" &&  tournir.stage !== "GROUP") && <FinishedBracketStage brackets={brackets} tournamentId={idTournir} onUpdated={refetch}/>}
       
       <h2 className="text-2xl font-bold mt-6 text-center">Общие результаты турнира</h2>
       <TableRezultTournir tournir={tournir} />
