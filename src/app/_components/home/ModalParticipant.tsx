@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Role } from "@prisma/client";
+import Link from "next/link";
 
 type ParticipantModalProps = {
   participant: {
@@ -121,9 +122,12 @@ export default function ModalParticipant({
             ) : (
               <ul className="mt-1 list-inside list-disc">
                 {participant.tournaments.map((tp) => (
-                  <li key={tp.tournament.id}>
-                    {tp.tournament.nameTurnir}
-                  </li>
+                  <Link key={tp.tournament.id} href={`/tournaments/${tp.tournament.id}`} className="block">
+                    <li key={tp.tournament.id}>
+                      {tp.tournament.nameTurnir}
+                    </li>
+                  </Link>
+
                 ))}
               </ul>
             )}

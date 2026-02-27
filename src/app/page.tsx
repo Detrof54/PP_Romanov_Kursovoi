@@ -13,7 +13,6 @@ export default async function Home() {
       <div className="min-h-screen w-full !bg-gray-900 p-4 text-white">
         <InfoCompetition />
         <PatricipantTournamentList role = {session?.user.role}/>
-        {/* <TournamentOrganizersList /> */}
       </div>
     )
   }

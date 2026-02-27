@@ -28,8 +28,6 @@ export function DeleteProfileButton({ userId, pilotId, judgeId }: Props) {
 
         deleteProfile.mutate({
           id_user: userId,
-          id_pilot: pilotId,
-          id_judge: judgeId,
         });
       }}
     >

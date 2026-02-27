@@ -1,7 +1,21 @@
 "use client"
-import type { $Enums } from "@prisma/client";
+import type { $Enums, Role, TypeStage } from "@prisma/client";
 import { EditBaseProfileModal } from "./EditBaseProfileModal";
 import { DeleteProfileButton } from "./DeleteProfileButton";
+import Link from "next/link";
+
+interface Turnir{
+  id: string;
+  nameTurnir: string;
+  description: string | null;
+  stage: $Enums.TypeStage;
+  participantsCount: number;
+  groupsCount: number;
+  tiebreakType: $Enums.TiebreakType;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string;
+}
 
 interface UserProfileProps {
   user: {
@@ -11,9 +25,29 @@ interface UserProfileProps {
     email?: string | null;
     image?: string | null;
     role: $Enums.Role;
+    tournaments: Turnir []
   };
 }
 
+export function PerevodStage(stage: TypeStage):string{
+  if(stage === "GROUP")
+    return "Групповой этап"
+  if(stage === "BRACKET")
+    return "Этап на выбывание"
+  if(stage === "FINISHED")
+    return "Турнир завершен"
+  return "Этап не указан"
+}
+
+export function PerevodRole(role: Role):string{
+  if(role === "USER")
+    return "Пользователь"
+  if(role === "ADMIN")
+    return "Администратор"
+  if(role === "ORGANIZER")
+    return "Организатор"
+  return "Нет роли"
+}
 
 export function UserProfile({ user }: UserProfileProps) {
   return (
@@ -27,11 +61,23 @@ export function UserProfile({ user }: UserProfileProps) {
         {user.firstname && user.surname ? `${user.firstname} ${user.surname}` : "No name"}
       </h2>
       <p className="text-gray-400">{user.email ? user.email : "no email"}</p>
-      <p className="text-sm text-gray-500 mt-2">Роль: Пользователь</p>
+      <p className="text-sm text-gray-500 mt-2">Роль: PerevodRole(user.role)</p>
 
       <EditBaseProfileModal user={user} />
 
       <DeleteProfileButton userId={user.id} />
+
+      {user.role === "ORGANIZER" && 
+        user.tournaments.length === 0 ? null : (
+           user.tournaments.map((tournir: Turnir) => {
+            return (
+              <Link key={tournir.id} href={`/tournaments/${tournir.id}`} className="block">
+                <p className="text-gray-400">{tournir.nameTurnir}  {tournir.stage}</p>
+              </Link>
+            )
+           })
+        )
+      }
     </div>
   );
 }
