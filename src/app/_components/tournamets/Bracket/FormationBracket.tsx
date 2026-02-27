@@ -35,9 +35,6 @@ export default function FormationBracket({
     },
   });
 
-  // -------------------------
-  // Helpers
-  // -------------------------
   const evenFloor = (n: number) => (n % 2 === 0 ? n : n - 1);
   const evenRange = (min: number, max: number) => {
     const arr: number[] = [];
@@ -45,25 +42,21 @@ export default function FormationBracket({
     return arr;
   };
 
-  // Верхняя сетка
   const maxUpper =
     totalParticipants <= 4
       ? evenFloor(totalParticipants)
       : evenFloor(Math.floor(totalParticipants * 0.8));
   const upperOptions = evenRange(2, maxUpper);
 
-  // Нижняя сетка
   const remainingAfterUpper = totalParticipants - upperSize;
   const lowerMax = lowerCreate ? evenFloor(Math.max(0, remainingAfterUpper)) : 0;
   const lowerOptions = lowerCreate && lowerMax >= 2 ? evenRange(2, lowerMax) : [];
 
-  // Утешительная сетка
   const remainingAfterLower = totalParticipants - upperSize - lowerSize;
   const consolationMax = consolationCreate ? evenFloor(Math.max(0, remainingAfterLower)) : 0;
   const consolationOptions =
     consolationCreate && consolationMax >= 2 ? evenRange(2, consolationMax) : [];
 
-  // Автокоррекция
   useEffect(() => {
     if (!upperOptions.includes(upperSize)) setUpperSize(upperOptions[0] ?? 2);
   }, [upperOptions, upperSize]);
@@ -87,14 +80,10 @@ export default function FormationBracket({
   const totalUsed = upperSize + effectiveLowerSize + effectiveConsolationSize;
   const isValid = upperSize >= 2 && totalUsed <= totalParticipants;
 
-  // -------------------------
-  // Рендер
-  // -------------------------
+
   if (stage !== TypeStage.BRACKET) return null;
 
-  // -------------------------
-  // UI
-  // -------------------------
+
   return (
     <>
       <button
@@ -109,7 +98,6 @@ export default function FormationBracket({
           <div className="bg-gray-800 text-white p-8 rounded-2xl w-[450px] space-y-6">
             <h2 className="text-2xl font-bold text-center">Настройка сеток</h2>
 
-            {/* Верхняя сетка */}
             <div className="space-y-3 border-b border-gray-700 pb-4">
               <h3 className="font-semibold text-lg">Верхняя сетка</h3>
               <div className="flex justify-between">
@@ -134,7 +122,6 @@ export default function FormationBracket({
               </div>
             </div>
 
-            {/* Нижняя сетка */}
             <div className="space-y-3 border-b border-gray-700 pb-4">
               <div className="flex justify-between">
                 <h3 className="font-semibold text-lg">Нижняя сетка</h3>
@@ -172,7 +159,6 @@ export default function FormationBracket({
               )}
             </div>
 
-            {/* Утешительная сетка */}
             <div className="space-y-3">
               <div className="flex justify-between">
                 <h3 className="font-semibold text-lg">Утешительная сетка</h3>
@@ -210,7 +196,6 @@ export default function FormationBracket({
               )}
             </div>
 
-            {/* Действия */}
             <div className="flex justify-between pt-4 border-t border-gray-700">
               <button
                 className="px-5 py-2 bg-gray-600 rounded"

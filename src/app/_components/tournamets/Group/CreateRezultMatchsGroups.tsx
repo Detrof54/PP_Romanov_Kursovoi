@@ -16,8 +16,6 @@ export default function CreateRezultMatchsGrops({groups,onUpdated,idTournir,}: {
     <div className="space-y-8 mt-6">
 
       {groups.map(group => {
-
-        // Берём только незавершённые матчи
         const unfinishedMatches = group.matches
           ?.filter(m => m.status === MatchStatus.SCHEDULED)
           .sort((a,b) => a.round - b.round) ?? [];
@@ -31,10 +29,8 @@ export default function CreateRezultMatchsGrops({groups,onUpdated,idTournir,}: {
           );
         }
 
-        // 🔹 Минимальный тур среди незавершённых матчей
         const currentRound = Math.min(...unfinishedMatches.map(m => m.round));
 
-        // Показываем только матчи этого тура
         const matchesRound = unfinishedMatches.filter(m => m.round === currentRound);
 
         const isOpen = openGroupIds.includes(group.id);
@@ -138,7 +134,7 @@ function MatchRow({
       <button
         onClick={() => {
           onSave(scoreA !== "" && Number(scoreA)>0 ? Number(scoreA) : 0, scoreB !== "" && Number(scoreB)>0 ? Number(scoreB) : 0);
-          setSaved(true); // блокируем повторный ввод
+          setSaved(true); 
         }}
         className="ml-auto px-3 py-1 bg-blue-500 rounded"
       >

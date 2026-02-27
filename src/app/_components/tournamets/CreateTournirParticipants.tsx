@@ -12,7 +12,6 @@ type Props = {
 export default function CreateTournirParticipants({idTournir,onClose,onCreated}: Props) {
   const utils = api.useUtils();
 
-  // список всех участников системы
   const { data: participants = [], isLoading } =
     api.tournametsRouter.getParticipants.useQuery();
 
@@ -54,7 +53,6 @@ export default function CreateTournirParticipants({idTournir,onClose,onCreated}:
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-gray-900 text-white w-[800px] max-h-[90vh] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
         
-        {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">
             Добавление участников
@@ -67,10 +65,8 @@ export default function CreateTournirParticipants({idTournir,onClose,onCreated}:
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex gap-6 flex-1 overflow-hidden">
 
-          {/* Доступные */}
           <div className="flex-1 border border-gray-700 rounded-xl p-4 overflow-y-auto">
             <h3 className="mb-3 font-semibold text-gray-300">
               Доступные участники
@@ -96,7 +92,6 @@ export default function CreateTournirParticipants({idTournir,onClose,onCreated}:
             </div>
           </div>
 
-          {/* Выбранные */}
           <div className="flex-1 border border-gray-700 rounded-xl p-4 overflow-y-auto">
             <h3 className="mb-3 font-semibold text-gray-300">
               Выбранные
@@ -125,7 +120,6 @@ export default function CreateTournirParticipants({idTournir,onClose,onCreated}:
           </div>
         </div>
 
-        {/* Footer */}
         <button
           onClick={handleSubmit}
           disabled={createMutation.isPending || selected.length === 0}

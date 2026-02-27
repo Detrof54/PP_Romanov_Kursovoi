@@ -19,7 +19,7 @@ export default function FinishedBracketStage({
   const finishMutation =
     api.tournametsBracketRouter.finishTournament.useMutation({
       onSuccess: () => {
-        alert("Турнир завершён ✅");
+        alert("Турнир завершён");
         onUpdated();
       },
       onError: (err) => {
@@ -27,7 +27,6 @@ export default function FinishedBracketStage({
       }
     });
 
-  // Проверяем завершены ли все матчи
   const allMatches = brackets.flatMap(b => b.matches ?? []);
 
   if (allMatches.length === 0) return null;

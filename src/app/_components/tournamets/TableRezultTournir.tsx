@@ -65,7 +65,6 @@ export default function TableRezultTournir({
     if (final && final.result.length > 0) {
     const last = final.result.at(-1)!;
 
-    // Если победитель известен
     if (last.winnerId) {
       if (!places.has(last.winnerId)) {
         places.set(last.winnerId, currentPlace++);
@@ -125,15 +124,9 @@ export default function TableRezultTournir({
       });
   }
 
-  /* ================================
-     Обрабатываем все 3 сетки
-  ==================================*/
 
   tournir.brackets.forEach(b => processBracket(b.id));
 
-  /* ================================
-     Формируем финальный список
-  ==================================*/
 
   const result = Array.from(places.entries())
     .map(([id, place]) => ({
@@ -142,9 +135,6 @@ export default function TableRezultTournir({
     }))
     .sort((a, b) => a.place - b.place);
 
-  /* ================================
-     UI
-  ==================================*/
 
   return (
     <div className="mt-8">

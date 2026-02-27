@@ -76,7 +76,6 @@ export default function UpdateTournir({
           <button onClick={onClose}>✕</button>
         </div>
 
-        {/* Основные поля */}
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
