@@ -12,13 +12,17 @@ interface Props {
 }
 
 export function EditBaseProfileModal({ user }: Props) {
+  const utils = api.useUtils();
   const [open, setOpen] = useState(false);
   const [firstname, setFirstname] = useState(user.firstname ?? "");
   const [surname, setSurname] = useState(user.surname ?? "");
 
   const updateBaseProfile =
     api.userProfileRouter.updateBaseProfile.useMutation({
-      onSuccess: () => setOpen(false),
+      onSuccess: () => {
+        utils.userProfileRouter.getUserById.invalidate({ id: user.id });
+        setOpen(false)
+      },
     });
 
   return (
