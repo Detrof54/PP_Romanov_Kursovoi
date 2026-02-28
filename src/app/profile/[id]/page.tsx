@@ -2,7 +2,6 @@
 
 import { api } from "~/trpc/server";
 import { UserProfile } from "~/app/_components/profile/UserProfile";
-import { AdminProfile } from "~/app/_components/profile/AdminProfile";
 
 interface PageProps {
   params: {
